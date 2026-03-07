@@ -1,0 +1,13 @@
+height = 600
+width = 800
+f_size = 30
+f_type = "Arial"
+bg_color = (128, 0, 128)
+fps_pos = (10, 10)
+fps_cap = 60
+fps_f_color = (255, 255, 255)
+x_player = 400
+y_player = 400
+widht_player = 55
+height_player = 85
+run = True

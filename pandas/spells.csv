@@ -1,0 +1,101 @@
+ID,Nombre_Hechizo,Elemento,Nivel,Costo_Mana,Duracion_Turnos,Objetivo,Efecto_Base,Daño_Base,Clase_Hechizo
+1,Bola de Fuego,Fuego,1,10,0,Enemigo,Inflige daño por fuego,20,Destruccion
+2,Rayo Helado,Hielo,1,8,1,Enemigo,Ralentiza el movimiento,15,Control
+3,Escudo de Tierra,Tierra,1,12,3,Aliado,Aumenta la defensa,0,Defensa
+4,Rafaga de Viento,Aire,1,7,0,Enemigos en area,Empuja y daña levemente,10,Destruccion
+5,Llamas Curativas,Fuego,2,18,0,Aliado,Cura y aplica regeneracion ligera,0,Restauracion
+6,Pico de Hielo,Hielo,2,15,0,Enemigo,Daño perforante de hielo,30,Destruccion
+7,Piel de Roca,Tierra,2,20,5,Caster,Reduce daño fisico,0,Defensa
+8,Tornado Menor,Aire,2,14,2,Enemigo,Atrapa y daña por aire,25,Control
+9,Infierno,Fuego,3,35,3,Area,Daño masivo por quemaduras,50,Destruccion
+10,Congelacion Total,Hielo,3,40,2,Area,Inmoviliza a los enemigos,5,Control
+11,Muro de Piedra,Tierra,3,30,5,Zona,Crea barrera infranqueable,0,Defensa
+12,Vuelo,Aire,3,25,10,Caster,Permite volar temporalmente,0,Utilidad
+13,Explosion Solar,Fuego,4,50,0,Area,Daño puro de calor,75,Destruccion
+14,Tormenta de Nieve,Hielo,4,60,4,Area,Daño continuo y ceguera,65,Control
+15,Terremoto,Tierra,4,70,0,Area,Gran daño y derriba enemigos,90,Destruccion
+16,Silencio,Aire,4,45,5,Enemigo,Impide usar hechizos,0,Maldicion
+17,Aura de Fuego,Fuego,5,80,5,Caster,Daño de fuego al tocar,50,Destruccion
+18,Corazon Gelido,Hielo,5,75,3,Enemigo,Congela permanentemente si acierta,100,Maldicion
+19,Fusion de Elementos,Tierra,5,100,10,Area,Aumenta todas las resistencias,0,Mejora
+20,Teletransporte,Aire,5,90,0,Caster,Mueve al caster a un punto,0,Utilidad
+21,Aspas de Viento,Aire,1,10,0,Enemigo,Corte rapido de aire,18,Destruccion
+22,Curacion Ligera,Agua,1,5,0,Aliado,Restaura salud basica,15,Restauracion
+23,Roca Ardiente,Fuego,2,25,0,Enemigo,Daño de fuego con impacto fisico,35,Destruccion
+24,Campo Estatico,Aire,3,30,4,Area,Ralentiza la velocidad de ataque,10,Control
+25,Inmunidad al Hielo,Hielo,2,22,5,Caster,Otorga resistencia al frio,0,Defensa
+26,Semilla Explosiva,Tierra,2,17,1,Enemigo,Daño de tierra en el siguiente turno,20,Destruccion
+27,Niebla Protectora,Agua,3,28,3,Area,Aumenta la evasion,0,Defensa
+28,Danza de Llamas,Fuego,4,48,2,Caster,Aumenta el daño magico,0,Mejora
+29,Prision de Hielo,Hielo,4,55,3,Enemigo,Encierra al objetivo,10,Control
+30,Invocar Golem,Tierra,5,95,15,Zona,Crea un aliado de roca,0,Invocacion
+31,Aguacero,Agua,2,16,0,Area,Daño de agua a todos,22,Destruccion
+32,Brisa de Paz,Aire,1,10,0,Area,Elimina efectos de miedo,0,Restauracion
+33,Lava Liquida,Fuego,3,33,2,Area,Daño por fuego continuo en el suelo,40,Destruccion
+34,Armadura de Hielo,Hielo,2,24,5,Aliado,Absorbe daño de un golpe,0,Defensa
+35,Trampa de Arena,Tierra,1,13,2,Zona,Inmoviliza ligeramente,5,Control
+36,Onda Marina,Agua,4,52,0,Enemigo,Gran daño de agua,60,Destruccion
+37,Meteorito,Fuego,5,98,0,Punto,Daño catastrofico de fuego/tierra,150,Destruccion
+38,Maldicion de Frio,Hielo,3,38,5,Enemigo,Reduce la velocidad de casteo,0,Maldicion
+39,Creacion de Agua,Agua,1,3,0,Caster,Genera agua potable,0,Utilidad
+40,Burbuja de Aire,Aire,2,15,10,Aliado,Permite respirar bajo el agua,0,Utilidad
+41,Chispas,Fuego,1,5,0,Enemigo,Daño minimo de fuego,8,Destruccion
+42,Gotas Acidas,Agua,2,19,3,Enemigo,Daño continuo y reduce defensa,12,Maldicion
+43,Vejiga de Arena,Tierra,3,32,0,Area,Ciega temporalmente a los enemigos,0,Control
+44,Niebla de Hielo,Hielo,1,10,1,Area,Reduce la precision,0,Maldicion
+45,Soplo Divino,Aire,5,70,0,Area,Cura masiva y limpia maldiciones,0,Restauracion
+46,Pared de Fuego,Fuego,2,26,4,Zona,Barrera de fuego que daña al pasar,30,Defensa
+47,Escudo de Agua,Agua,3,36,5,Caster,Aumenta resistencia a fuego,0,Defensa
+48,Acelerar,Aire,3,20,5,Aliado,Aumenta la velocidad de accion,0,Mejora
+49,Puño de Roca,Tierra,1,9,0,Enemigo,Daño fisico contundente,17,Destruccion
+50,Fogonazo,Fuego,4,55,0,Enemigo,Daño instantaneo muy alto,85,Destruccion
+51,Ventisca,Hielo,5,85,5,Area,Daño; inmovilizacion y ceguera,110,Destruccion
+52,Manipular Tierra,Tierra,4,50,0,Zona,Crea obstaculos en el terreno,0,Control
+53,Curacion Total,Agua,5,75,0,Aliado,Restaura toda la salud,0,Restauracion
+54,Invocar Elemental de Aire,Aire,4,65,12,Zona,Crea un aliado de aire,0,Invocacion
+55,Escaldar,Fuego,2,15,3,Enemigo,Daño por fuego y penalizacion a la armadura,25,Maldicion
+56,Torrente,Agua,1,10,0,Enemigo,Empuja y daña levemente,15,Destruccion
+57,Enraizar,Tierra,2,20,3,Enemigo,Impide el movimiento,0,Control
+58,Aliento Frio,Hielo,2,16,0,Area en cono,Daño y reduce velocidad de casteo,28,Destruccion
+59,Aura de Viento,Aire,2,18,5,Aliado,Aumenta evasion,0,Defensa
+60,Regeneracion,Agua,3,30,5,Aliado,Restaura salud continuamente,0,Restauracion
+61,Rocada,Tierra,4,45,0,Enemigo,Lanza gran roca que aturde,55,Destruccion
+62,Lanza de Hielo,Hielo,4,52,0,Enemigo,Daño critico si el enemigo esta mojado,70,Destruccion
+63,Explosion de Agua,Agua,4,48,0,Area,Daño en area mas el doble a objetivos de fuego,60,Destruccion
+64,Esfera de Fuego,Fuego,3,30,1,Enemigo,Marca al objetivo para mayor daño de fuego,10,Maldicion
+65,Desorientar,Aire,1,10,2,Enemigo,Confunde y reduce precision,0,Maldicion
+66,Crecer Plantas,Tierra,1,5,0,Zona,Crea forraje/cuerda,0,Utilidad
+67,Fuente de Mana,Agua,5,100,0,Area,Restaura gran cantidad de mana a aliados,0,Restauracion
+68,Armadura de Fuego,Fuego,4,40,5,Caster,Quema a atacantes cuerpo a cuerpo,0,Defensa
+69,Resistencia al Agua,Agua,2,20,5,Aliado,Otorga resistencia al agua,0,Defensa
+70,Pisar Fuerte,Tierra,3,35,0,Area,Reduce la velocidad y aturde levemente,10,Control
+71,Ola de Frio,Hielo,3,32,0,Area en cono,Daño y reduce velocidad de movimiento,40,Destruccion
+72,Vision Clara,Aire,1,5,10,Caster,Permite ver en la oscuridad,0,Utilidad
+73,Bomba de Humo,Fuego,1,12,2,Area,Crea niebla para escapar o esconderse,0,Utilidad
+74,Tormenta de Rayos,Aire,5,95,0,Area,Daño masivo de aire/electricidad,130,Destruccion
+75,Piel de Marmol,Tierra,5,85,10,Aliado,Inmunidad a daño fisico por un turno,0,Defensa
+76,Agujero Negro de Agua,Agua,5,90,3,Punto,Atrae y daña a todos los enemigos,120,Destruccion
+77,Invocar Elemental de Fuego,Fuego,4,60,12,Zona,Crea un aliado de fuego,0,Invocacion
+78,Romper Hielo,Hielo,1,6,0,Enemigo,Daño extra a enemigos congelados,15,Destruccion
+79,Purificar Agua,Agua,1,5,0,Caster,Elimina veneno ligero,0,Restauracion
+80,Aura de Ralentizacion,Hielo,4,48,5,Area,Reduce la velocidad de todo en el area,0,Control
+81,Invocar Elemental de Tierra,Tierra,4,65,12,Zona,Crea un aliado de tierra,0,Invocacion
+82,Estallido de Rocas,Tierra,3,40,0,Enemigo,Daño de tierra en cadena,45,Destruccion
+83,Vapor Caliente,Fuego,2,20,2,Area,Daño por fuego y reduce precision,25,Maldicion
+84,Calma,Agua,2,15,5,Area,Elimina efectos de ira o locura,0,Control
+85,Resistencia al Viento,Aire,2,22,5,Aliado,Otorga resistencia al aire,0,Defensa
+86,Capa de Escarcha,Hielo,5,70,5,Caster,Congela al atacante cuerpo a cuerpo,0,Defensa
+87,Invocar Lluvia,Agua,1,5,10,Area,Reduce el daño por fuego y aumenta el de agua,0,Utilidad
+88,Fuego Fatuo,Fuego,1,10,5,Enemigo,Distrae y aplica daño minimo continuo,5,Control
+89,Mudra del Aire,Aire,3,25,5,Aliado,Permite ver objetos ocultos,0,Utilidad
+90,Debilidad a Tierra,Tierra,3,30,4,Enemigo,Aumenta el daño de tierra recibido,0,Maldicion
+91,Tsunami,Agua,5,120,0,Area,Daño masivo y empuje,160,Destruccion
+92,Lluvia de Meteoros,Fuego,5,110,0,Area,Golpes multiples de fuego/roca,140,Destruccion
+93,Barrera de Viento,Aire,4,50,5,Zona,Desvia proyectiles fisicos,0,Defensa
+94,Prisa,Aire,2,15,3,Caster,Aumenta la velocidad de ataque y movimiento,0,Mejora
+95,Petrificacion,Tierra,5,100,0,Enemigo,Convierte en piedra permanentemente,0,Maldicion
+96,Sanar Heridas,Agua,4,60,0,Aliado,Cura heridas criticas,0,Restauracion
+97,Escarcha,Hielo,1,7,1,Enemigo,Ralentiza levemente,10,Control
+98,Inmolacion,Fuego,3,45,5,Enemigo,Daño continuo muy alto,15,Maldicion
+99,Niebla de Engaño,Agua,3,35,4,Area,Crea copias ilusorias,0,Utilidad
+100,Aura de Tierra,Tierra,2,25,5,Caster,Refleja daño de proyectiles,0,Defensa
