@@ -41,6 +41,7 @@ class Player:
             delta_x += 5
             self.is_move = True
 
+        # ? Show hitbox
         if keys_pressed[pygame.K_r]:
             self.show_hitbox = True
         elif keys_pressed[pygame.K_e]:
