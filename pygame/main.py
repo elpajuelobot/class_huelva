@@ -1,9 +1,9 @@
 # imports
 import pygame
-from src.config import (height, width, f_size, f_type, bg_color, fps_pos,
+from src.core.config import (height, width, f_size, f_type, bg_color, fps_pos,
                         fps_cap, fps_f_color, x_player, y_player, widht_player,
-                        height_player, run)
-from player import Player
+                        height_player, run, width_item, height_item)
+from src.core.player import Player, Items
 
 # * init
 pygame.init()
@@ -13,6 +13,14 @@ wn = pygame.display.set_mode((width , height))
 
 # * Player
 hero = Player(widht_player, height_player, x_player, y_player, "player")
+
+# * Items
+items = [
+    Items(x_item=100, y_item=103, width_item=width_item, height_item=height_item, name_item="banana"),
+    Items(x_item=200, y_item=143, width_item=width_item, height_item=height_item, name_item="coin"),
+    Items(x_item=300, y_item=345, width_item=width_item, height_item=height_item, name_item="cookie"),
+    Items(x_item=500, y_item=123, width_item=width_item, height_item=height_item, name_item="crystal")
+]
 
 # * clock
 clock = pygame.time.Clock()
@@ -36,8 +44,14 @@ while run:
     fps_text = font.render(f"FPS: {int(clock.get_fps())}", True, fps_f_color)
 
     # * Player
-    hero.update(keys_pressed)
+    hero.update(keys_pressed, items)
     hero.draw(wn)
+
+    # * Draw Items
+    for item in items:
+        item.draw(wn)
+        if item.visible == False:
+            items.remove(item)
 
     # * draw
     wn.blit(fps_text, fps_pos)
