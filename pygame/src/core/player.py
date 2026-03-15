@@ -1,34 +1,52 @@
 # Imports
 import pygame
-from src.core.animations import *
-from src.core.animations import sprites_func_player, sprites_func_shot, sprites_func_items
-from src.core.config import (shot_width, shot_height, shot_cooldown)
+from src.core.animations import (
+    sprites_func_player,
+    sprites_func_shot,
+    sprites_func_items
+)
+from src.core.config import (
+    shot_width,
+    shot_height,
+    shot_cooldown
+)
 from src.core.inventory import Inventory
+
 
 # * Player's class
 class Player:
     # * __Init__
-    def __init__(self, width_player, height_player, x_player, y_player, sprites_player):
-        self.width = width_player # * Player's width
-        self.height = height_player # * Player's height
+    def __init__(
+            self, width_player, height_player,
+            x_player, y_player, sprites_player):
+        self.width = width_player  # * Player's width
+        self.height = height_player  # * Player's height
         self.sprites = sprites_func_player(self.width, self.height)
-        self.x = x_player # * Player's x
-        self.y = y_player # * Player's y
-        self.hitbox_player = pygame.Rect(self.x, self.y, self.width, self.height) # * Player's hitbox
-        self.player_state = "right" # * Player's state
-        self.sprites_dict = self.sprites[sprites_player] # * Player's sprites
-        self.anim_count = 0 # * A counter for the frames of the player's animation
-        self.is_move = False # * Can't move in the begining
-        self.show_hitbox = False # * Don't show the hitbox
-        self.is_shot = False # * If the player throwing a fire ball?
-        self.projectiles = [] # * List with all the projectiles that the player creates
-        self.can_create_shot = False # * If the player can create a projectiles
-        self.last_shot_time = 0 # * The time of the last fire ball
-        self.shot_count_down = shot_cooldown # * Delay for the fire balls
-        self.inventory = Inventory() # * Create the inventory
+        self.x = x_player  # * Player's x
+        self.y = y_player  # * Player's y
+        self.hitbox_player = pygame.Rect(
+            self.x, self.y,
+            self.width, self.height)  # * Player's hitbox
+        self.player_state = "right"  # * Player's state
+        self.sprites_dict = self.sprites[sprites_player]  # * Player's sprites
+        self.anim_count = 0  # * Counter for the animations' frames
+        self.is_move = False  # * Can't move in the begining
+        self.show_hitbox = False  # * Don't show the hitbox
+        self.is_shot = False  # * If the player throwing a fire ball?
+        self.projectiles = []  # * List with all the projectiles
+        self.can_create_shot = False  # * when player can create a projectiles
+        self.last_shot_time = 0  # * The time of the last fire ball
+        self.shot_count_down = shot_cooldown  # * Delay for the fire balls
+        self.inventory = Inventory()  # * Create the inventory
 
     def update_inventory(self, event, items, items_creator):
-        self.inventory.update(event, items, self.hitbox_player.x, self.hitbox_player.y, items_creator)
+        self.inventory.update(
+            event,
+            items,
+            self.hitbox_player.x,
+            self.hitbox_player.y,
+            items_creator
+        )
 
     # * Update function for move the player
     def update(self, keys_pressed, items):
@@ -110,7 +128,10 @@ class Player:
 
         # ? Add item in the inventory
         for item in items:
-            if item.visible and self.hitbox_player.colliderect(item.hitbox_item):
+            if (
+                    item.visible
+                    and
+                    self.hitbox_player.colliderect(item.hitbox_item)):
                 if self.inventory.put_images(item.name):
                     item.visible = False
 

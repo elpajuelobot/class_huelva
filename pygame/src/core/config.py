@@ -18,7 +18,8 @@ grey = (85, 85, 85)
 grey_highlight = (237, 237, 237)
 red = (255, 0, 0)
 white = (255, 255, 255)
-black = (0,0,0)
+black = (0, 0, 0)
+purple = (114, 0, 194)
 
 # ? FPS
 f_size = 30
@@ -37,7 +38,7 @@ run = True
 
 # ? Fonts
 font = pygame.font.SysFont(f_type, f_size)
-inventory_font = pygame.font.SysFont(f_type, 15, bold=True)
+inventory_font = pygame.font.SysFont(f_type, 13, bold=True)
 
 # ? Shoot
 shot_radius = 50

@@ -1,9 +1,11 @@
 # Imports
 import pygame
 from src.core.animations import sprites_func_items
-from src.core.config import (width, height, grey_dark, grey_light, grey, grey_highlight,
-                            inventory_squares, squares_size, squares_padding, red, inventory_font,
-                            black, width_item, height_item)
+from src.core.config import (
+                            width, height, grey_dark, grey_light,
+                            grey, grey_highlight, inventory_squares,
+                            squares_size, squares_padding, red, inventory_font,
+                            purple, width_item, height_item, white)
 
 # Initialize Pygame
 pygame.init()
@@ -14,14 +16,27 @@ class Inventory:
     # * __init__
     def __init__(self):
         # * Define the width and height of the inventory
-        bar_width  = (squares_size + squares_padding) * inventory_squares + squares_padding
+        bar_width = (
+            (squares_size + squares_padding)
+            *
+            inventory_squares + squares_padding
+        )
         bar_height = squares_size + squares_padding * 2
-        bar_x = (width - bar_width) // 2 # * Inventory X axis
-        bar_y = height - bar_height - 10 # * Inventory Y axis
+        bar_x = (width - bar_width) // 2  # * Inventory X axis
+        bar_y = height - bar_height - 10  # * Inventory Y axis
 
-        self.bar_rect = pygame.Rect(bar_x, bar_y, bar_width, bar_height) # * Inventory Skeleton
-        self.items = {i: {"name": None, "count": 0, "text_count": None} for i in range(inventory_squares)} # * Dict with the Items
-        self.items_sprites = sprites_func_items(squares_size - 8, squares_size - 8) # * Items' Sprites
+        # * Inventory Skeleton
+        self.bar_rect = pygame.Rect(bar_x, bar_y, bar_width, bar_height)
+        # * Dict with the Items
+        self.items = (
+            {i: {"name": None, "count": 0, "text_count": None}
+                for i in range(inventory_squares)}
+        )
+        # * Items' Sprites
+        self.items_sprites = sprites_func_items(
+                            item_width=squares_size - 8,
+                            item_height=squares_size - 8
+        )
         self.selected_item = None
 
     # * Get the items to draw them later (Max 10 items)
@@ -29,8 +44,11 @@ class Inventory:
         for i in range(inventory_squares):
             if self.items[i]["name"] == item_name:
                 self.items[i]["count"] += 1
-                self.items[i]["text_count"] = inventory_font.render(f"x{self.items[i]["count"]}", True, black)
-                print(f"{self.items[i]['name']}\n{self.items[i]['count']}")
+                self.items[i]["text_count"] = (
+                    inventory_font.render(
+                        f"x{self.items[i]["count"]}", True, white
+                    )
+                )
                 return True
         for i in range(inventory_squares):
             if self.items[i]["name"] is None:
@@ -67,11 +85,19 @@ class Inventory:
                     ))
 
                     self.items[self.selected_item]["count"] -= 1
-                    self.items[self.selected_item]["text_count"] = inventory_font.render(f"x{self.items[self.selected_item]["count"]}", True, black)
+                    self.items[self.selected_item]["text_count"] = (
+                        inventory_font.render(
+                            f"x{self.items[self.selected_item]["count"]}",
+                            True, white
+                        )
+                    )
                     if self.items[self.selected_item]["count"] == 0:
                         self.items[self.selected_item]["name"] = None
                         self.items[self.selected_item]["text_count"] = None
                         self.selected_item = None
+
+                    elif self.items[self.selected_item]["count"] == 1:
+                        self.items[self.selected_item]["text_count"] = None
 
     # * Draw the Inventory
     def draw(self, wn):
@@ -80,7 +106,11 @@ class Inventory:
         pygame.draw.rect(wn, grey, self.bar_rect, width=2, border_radius=6)
 
         for i in range(inventory_squares):
-            slot_x = self.bar_rect.x + squares_padding + i * (squares_size + squares_padding)
+            slot_x = (
+                self.bar_rect.x + squares_padding + i
+                *
+                (squares_size + squares_padding)
+            )
             slot_y = self.bar_rect.y + squares_padding
             slot_rect = pygame.Rect(slot_x, slot_y, squares_size, squares_size)
 
@@ -92,10 +122,26 @@ class Inventory:
             pygame.draw.rect(wn, grey, slot_rect, width=2, border_radius=3)
 
             if self.items[i]["name"] is not None:
-                img = self.items_sprites["item_sprites"].get(self.items[i]["name"])
+                img = (
+                    self.items_sprites["item_sprites"].get(
+                        self.items[i]["name"]
+                    )
+                )
                 if img:
                     wn.blit(img, (slot_x + 4, slot_y + 4))
                     if self.items[i]["text_count"] is not None:
-                        axis_x = slot_x + squares_size - self.items[i]["text_count"].get_width() - 3
-                        axis_y = slot_y + squares_size - self.items[i]["text_count"].get_height() - 3
+                        axis_x = (
+                            slot_x + squares_size
+                            -
+                            self.items[i]["text_count"].get_width() - 3
+                        )
+                        axis_y = (
+                            slot_y + squares_size
+                            -
+                            self.items[i]["text_count"].get_height() - 3
+                        )
+                        pygame.draw.circle(
+                            wn, purple,
+                            (axis_x + 7, axis_y + 8), 9
+                        )
                         wn.blit(self.items[i]["text_count"], (axis_x, axis_y))
