@@ -27,6 +27,9 @@ class Player:
         self.shot_count_down = shot_cooldown # * Delay for the fire balls
         self.inventory = Inventory() # * Create the inventory
 
+    def update_inventory(self, event, items, items_creator):
+        self.inventory.update(event, items, self.hitbox_player.x, self.hitbox_player.y, items_creator)
+
     # * Update function for move the player
     def update(self, keys_pressed, items):
         delta_x = 0

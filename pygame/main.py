@@ -5,10 +5,10 @@ from src.core.config import (height, width, f_size, f_type, bg_color, fps_pos,
                         height_player, run, width_item, height_item)
 from src.core.player import Player, Items
 
-# * init
+# * Initialize Pygame
 pygame.init()
 
-# * screen
+# * Window
 wn = pygame.display.set_mode((width , height))
 
 # * Player
@@ -17,30 +17,32 @@ hero = Player(widht_player, height_player, x_player, y_player, "player")
 # * Items
 items = [
     Items(x_item=100, y_item=103, width_item=width_item, height_item=height_item, name_item="banana"),
-    Items(x_item=200, y_item=143, width_item=width_item, height_item=height_item, name_item="coin"),
-    Items(x_item=300, y_item=345, width_item=width_item, height_item=height_item, name_item="cookie"),
+    Items(x_item=200, y_item=143, width_item=width_item, height_item=height_item, name_item="cookie"),
+    Items(x_item=300, y_item=345, width_item=width_item, height_item=height_item, name_item="coin"),
     Items(x_item=500, y_item=123, width_item=width_item, height_item=height_item, name_item="crystal")
 ]
 
-# * clock
+# * Clock
 clock = pygame.time.Clock()
 
-# * font
+# * Font
 font = pygame.font.SysFont(f_type, f_size)
 
-# * main loop
+# * Main loop
 while run:
-    # * Control de 
+    # * Keys Control
     keys_pressed = pygame.key.get_pressed()
-    # * control quit
+    # * Control quit
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
 
-    # * background
+        hero.update_inventory(event, items, Items)
+
+    # * Background
     wn.fill(bg_color)
 
-    # * fps write
+    # * FPS write
     fps_text = font.render(f"FPS: {int(clock.get_fps())}", True, fps_f_color)
 
     # * Player
@@ -53,13 +55,13 @@ while run:
         if item.visible == False:
             items.remove(item)
 
-    # * draw
+    # * Write the FPS in the window
     wn.blit(fps_text, fps_pos)
 
-    # * update
+    # * Update
     pygame.display.flip()
 
-    # * fps
+    # * The clock of the game (FPS)
     clock.tick(fps_cap)
 
 pygame.quit()
