@@ -3,7 +3,7 @@ import pygame
 from src.core.animations import (
     sprites_func_player,
     sprites_func_shot,
-    sprites_func_items
+    sprites_func_items,
 )
 from src.core.config import (
     shot_width,
@@ -18,7 +18,7 @@ class Player:
     # * __Init__
     def __init__(
             self, width_player, height_player,
-            x_player, y_player, sprites_player):
+            x_player, y_player, speed_player, sprites_player):
         self.width = width_player  # * Player's width
         self.height = height_player  # * Player's height
         self.sprites = sprites_func_player(self.width, self.height)
@@ -27,6 +27,7 @@ class Player:
         self.hitbox_player = pygame.Rect(
             self.x, self.y,
             self.width, self.height)  # * Player's hitbox
+        self.speed = speed_player  # * Player's speed
         self.player_state = "right"  # * Player's state
         self.sprites_dict = self.sprites[sprites_player]  # * Player's sprites
         self.anim_count = 0  # * Counter for the animations' frames
@@ -56,18 +57,18 @@ class Player:
 
         # ? Horizontal axis configuration
         if keys_pressed[pygame.K_w] and self.hitbox_player.y > 0:
-            delta_y -= 5
+            delta_y -= self.speed
             self.is_move = True
         elif keys_pressed[pygame.K_s] and self.hitbox_player.y < 515:
-            delta_y += 5
+            delta_y += self.speed
             self.is_move = True
 
         # ? Vertical axis configuration
         if keys_pressed[pygame.K_a] and self.hitbox_player.x > 0:
-            delta_x -= 5
+            delta_x -= self.speed
             self.is_move = True
         elif keys_pressed[pygame.K_d] and self.hitbox_player.x < 744:
-            delta_x += 5
+            delta_x += self.speed
             self.is_move = True
 
         # ? Show hitbox
@@ -77,26 +78,34 @@ class Player:
             self.show_hitbox = False
 
         # ? Apply movement
-        self.hitbox_player.x += delta_x
-        self.hitbox_player.y += delta_y
+        iso_x = delta_x - delta_y
+        iso_y = (delta_x + delta_y) / 2
+
+        length = (iso_x**2 + iso_y**2) ** 0.5
+        if length > 0:
+            iso_x = (iso_x / length) * self.speed
+            iso_y = (iso_y / length) * self.speed
+
+        self.hitbox_player.x += iso_x
+        self.hitbox_player.y += iso_y
 
         # ? Update player_state
         if delta_x < 0 and delta_y < 0:
-            self.player_state = "up_left"
+            pass
         elif delta_x > 0 and delta_y < 0:
-            self.player_state = "up_right"
+            pass
         elif delta_x < 0 and delta_y > 0:
-            self.player_state = "down_left"
+            pass
         elif delta_x > 0 and delta_y > 0:
-            self.player_state = "down_right"
+            pass
         elif delta_y < 0:
-            self.player_state = "up"
+            self.player_state = "up_right"
         elif delta_y > 0:
-            self.player_state = "down"
+            self.player_state = "down_left"
         elif delta_x < 0:
-            self.player_state = "left"
+            self.player_state = "up_left"
         elif delta_x > 0:
-            self.player_state = "right"
+            self.player_state = "down_right"
 
         # ? Shot a fire ball
         if keys_pressed[pygame.K_SPACE]:
@@ -139,19 +148,17 @@ class Player:
     def draw(self, wn):
         if self.show_hitbox:
             pygame.draw.rect(wn, (255, 0, 0), self.hitbox_player, 4)
+
         if self.player_state and self.is_move:
             self.anim_count += 1
             anim_list = self.sprites_dict["move"][self.player_state]
-            # ? Transform the sprites
             current_frame = anim_list[self.anim_count // 5 % len(anim_list)]
-            # ! Draw the player
-            wn.blit(current_frame, self.hitbox_player)
+            wn.blit(current_frame, (self.hitbox_player.x, self.hitbox_player.y))
         elif self.player_state and not self.is_move:
             # ? Transform the sprites
             self.anim_count = 0
             current_frame = self.sprites_dict["not_move"][self.player_state]
-            # ! Draw the player
-            wn.blit(current_frame, self.hitbox_player)
+            wn.blit(current_frame, (self.hitbox_player.x, self.hitbox_player.y))
         # ? Fuck you
         else:
             print("\n\n  FUCK YOU!!!!  \n\n")

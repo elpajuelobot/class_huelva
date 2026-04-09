@@ -1,120 +1,37 @@
 # Imports
-from pygame import image, transform
+from pygame import image, transform, Rect
 
 
-# * Player's Sprites
-def sprites_func_player(widht_player, height_player):
-    sprites = {
-        "player": {
-            "move": {
-                "left": [
-                    transform.scale(
-                        image.load(
-                            f'src\\data\\img\\player\\left_{i}.png'
-                        ),
-                        (widht_player, height_player)) for i in range(0, 2)
-                        ],
 
-                "right":  [
-                    transform.scale(
-                        image.load(
-                            f'src\\data\\img\\player\\right_{i}.png'
-                        ),
-                        (widht_player, height_player)) for i in range(0, 2)
-                        ],
+def sprites_func_player(width_player, height_player):
+    imagen_completa = image.load("src\\data\\img\\player\\player_Completo.png").convert_alpha()
+    hoja_ancho, hoja_alto = imagen_completa.get_size()
 
-                "up":  [
-                    transform.scale(
-                        image.load(
-                            f'src\\data\\img\\player\\up_{i}.png'
-                        ),
-                        (widht_player, height_player)) for i in range(0, 2)
-                        ],
+    f_ancho_orig = hoja_ancho / 8
+    f_alto_orig = hoja_alto / 3
 
-                "down":  [
-                    transform.scale(
-                        image.load(
-                            f'src\\data\\img\\player\\down_{i}.png'
-                        ),
-                        (widht_player, height_player)) for i in range(0, 2)
-                        ],
+    directions = ["up", "up_right", "right", "down_right", "down", "down_left", "left", "up_left"]
+    sprites = {"player": {"move": {}, "not_move": {}}}
 
-                "up_left":  [
-                    transform.scale(
-                        image.load(
-                            f'src\\data\\img\\player\\up_left_{i}.png'
-                        ),
-                        (widht_player, height_player)) for i in range(0, 2)
-                        ],
+    for c, dir_name in enumerate(directions):
+        move_frames = []
+        for f in [0, 1, 2, 1]: 
+            rect_bruto = Rect(int(c * f_ancho_orig), int(f * f_alto_orig), int(f_ancho_orig), int(f_alto_orig))
+            sprite_sucio = imagen_completa.subsurface(rect_bruto)
 
-                "up_right":  [
-                    transform.scale(
-                        image.load(
-                            f'src\\data\\img\\player\\up_right_{i}.png'
-                        ),
-                        (widht_player, height_player)) for i in range(0, 2)
-                        ],
+            area_dibujo = sprite_sucio.get_bounding_rect()
+            sprite_limpio = sprite_sucio.subsurface(area_dibujo)
 
-                "down_left":  [
-                    transform.scale(
-                        image.load(
-                            f'src\\data\\img\\player\\down_left_{i}.png'
-                        ),
-                        (widht_player, height_player)) for i in range(0, 2)
-                        ],
+            move_frames.append(transform.scale(sprite_limpio, (width_player, height_player)))
 
-                "down_right":  [
-                    transform.scale(
-                        image.load(
-                            f'src\\data\\img\\player\\down_right_{i}.png'
-                        ),
-                        (widht_player, height_player)) for i in range(0, 2)
-                        ]
-            },
+        sprites["player"]["move"][dir_name] = move_frames
 
-            "not_move": {
-                "left": transform.scale(
-                    image.load('src\\data\\img\\player\\left_not.png'),
-                    (widht_player, height_player)
-                ),
+        rect_quieto = Rect(int(c * f_ancho_orig), int(1 * f_alto_orig), int(f_ancho_orig), int(f_alto_orig))
+        sprite_q_sucio = imagen_completa.subsurface(rect_quieto)
+        area_q = sprite_q_sucio.get_bounding_rect()
+        sprite_q_limpio = sprite_q_sucio.subsurface(area_q)
 
-                "right": transform.scale(
-                    image.load('src\\data\\img\\player\\right_not.png'),
-                    (widht_player, height_player)
-                ),
-
-                "up": transform.scale(
-                    image.load('src\\data\\img\\player\\up_not.png'),
-                    (widht_player, height_player)
-                ),
-
-                "down": transform.scale(
-                    image.load('src\\data\\img\\player\\down_not.png'),
-                    (widht_player, height_player)
-                ),
-
-                "up_left": transform.scale(
-                    image.load('src\\data\\img\\player\\up_left_not.png'),
-                    (widht_player, height_player)
-                ),
-
-                "up_right": transform.scale(
-                    image.load('src\\data\\img\\player\\up_right_not.png'),
-                    (widht_player, height_player)
-                ),
-
-                "down_left": transform.scale(
-                    image.load('src\\data\\img\\player\\down_left_not.png'),
-                    (widht_player, height_player)
-                ),
-
-                "down_right": transform.scale(
-                    image.load('src\\data\\img\\player\\down_right_not.png'),
-                    (widht_player, height_player)
-                )
-            }
-        }
-    }
+        sprites["player"]["not_move"][dir_name] = transform.scale(sprite_q_limpio, (width_player, height_player))
 
     return sprites
 

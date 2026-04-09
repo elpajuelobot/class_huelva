@@ -32,6 +32,7 @@ x_player = 400
 y_player = 400
 widht_player = 55
 height_player = 85
+speed_player = 4
 
 # ? Principal loop
 run = True

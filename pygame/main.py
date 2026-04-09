@@ -1,9 +1,9 @@
 # imports
 import pygame
 from src.core.config import (
-                        height, width, f_size, f_type, bg_color, fps_pos,
+                        height, width, f_size, f_type, fps_pos,
                         fps_cap, fps_f_color, x_player, y_player, widht_player,
-                        height_player, run, width_item, height_item)
+                        height_player, run, width_item, height_item, speed_player)
 from src.core.player import Player, Items
 
 # * Initialize Pygame
@@ -11,9 +11,10 @@ pygame.init()
 
 # * Window
 wn = pygame.display.set_mode((width, height))
+gride = pygame.transform.scale(pygame.image.load("src\\data\\img\\background\\gradilla.png"), (width, height)).convert_alpha()
 
 # * Player
-hero = Player(widht_player, height_player, x_player, y_player, "player")
+hero = Player(widht_player, height_player, x_player, y_player, speed_player, "player")
 
 # * Items
 items = [
@@ -57,7 +58,7 @@ while run:
         hero.update_inventory(event, items, Items)
 
     # * Background
-    wn.fill(bg_color)
+    wn.blit(gride, (0,0))
 
     # * FPS write
     fps_text = font.render(f"FPS: {int(clock.get_fps())}", True, fps_f_color)
