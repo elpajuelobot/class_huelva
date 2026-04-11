@@ -1,6 +1,6 @@
 # Imports
 import pygame
-from src.core.animations import sprites_func_items
+from src.core.animations import sprites_func_items, items_pool
 from src.core.config import (
                             width, height, grey_dark, grey_light,
                             grey, grey_highlight, inventory_squares,
@@ -58,7 +58,7 @@ class Inventory:
         return False  # ? Inventory Full
 
     # * Update the inventory
-    def update(self, event, items, player_x, player_y, items_creator):
+    def update(self, event, items, player_x, player_y):
         if event.type == pygame.KEYDOWN:
             key_map = {
                 pygame.K_1: 0, pygame.K_2: 1, pygame.K_3: 2,
@@ -76,13 +76,12 @@ class Inventory:
 
             if event.key == pygame.K_q and self.selected_item is not None:
                 if self.items[self.selected_item]["name"] is not None:
-                    items.append(items_creator(
-                        x_item=player_x + 100,
-                        y_item=player_y,
-                        width_item=width_item,
-                        height_item=height_item,
-                        name_item=self.items[self.selected_item]["name"]
-                    ))
+                    items_pool(
+                        items,
+                        self.items[self.selected_item]["name"],
+                        player_x + 100,
+                        player_y
+                    )
 
                     self.items[self.selected_item]["count"] -= 1
                     self.items[self.selected_item]["text_count"] = (

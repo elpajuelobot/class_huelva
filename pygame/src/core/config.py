@@ -7,6 +7,11 @@ pygame.init()
 # ? Window
 height = 600
 width = 800
+MAX_ITEMS_IN_WINDOWS = 10
+COLUMNS = 70
+ROWS = 70
+TILE_W = 128
+TILE_H = 64
 
 # ? Colors
 bg_color = (128, 0, 128)
@@ -29,7 +34,7 @@ fps_cap = 60
 
 # ? Player
 x_player = 400
-y_player = 400
+y_player = 300
 widht_player = 55
 height_player = 85
 speed_player = 4

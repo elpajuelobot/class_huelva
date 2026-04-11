@@ -8,9 +8,25 @@ from src.core.animations import (
 from src.core.config import (
     shot_width,
     shot_height,
-    shot_cooldown
+    shot_cooldown,
+    ROWS,
+    COLUMNS
 )
 from src.core.inventory import Inventory
+
+
+class Objetos(pygame.sprite.Sprite):
+    def __init__(self, *groups, width, height, x, y):
+        super().__init__(*groups)
+        self.width = width
+        self.height = height
+        self.x = x
+        self.y = y
+        self.hitbox = pygame.Rect(
+            self.x, self.y,
+            self.width, self.height
+        )
+        self.visible = True
 
 
 # * Player's class
@@ -39,35 +55,46 @@ class Player:
         self.last_shot_time = 0  # * The time of the last fire ball
         self.shot_count_down = shot_cooldown  # * Delay for the fire balls
         self.inventory = Inventory()  # * Create the inventory
+        self.world_x = x_player
+        self.world_y = y_player
+        # ? Update the actual column and row
+        self.tile_clmn = 0
+        self.tile_row = 0
 
-    def update_inventory(self, event, items, items_creator):
+    # * Update de inventory
+    def update_inventory(self, event, items):
         self.inventory.update(
             event,
             items,
             self.hitbox_player.x,
-            self.hitbox_player.y,
-            items_creator
+            self.hitbox_player.y
         )
 
     # * Update function for move the player
-    def update(self, keys_pressed, items):
+    def update(self, keys_pressed, items, tile_w, tile_h):
         delta_x = 0
         delta_y = 0
         self.is_move = False
+        self.tile_clmn = round(
+            ((self.world_x / (tile_w / 2) + self.world_y / (tile_h / 2)) / 2), 2
+        )
+        self.tile_row = round(
+            ((self.world_y / (tile_h / 2) - self.world_x / (tile_w / 2)) / 2), 2
+        )
 
         # ? Horizontal axis configuration
-        if keys_pressed[pygame.K_w] and self.hitbox_player.y > 0:
+        if keys_pressed[pygame.K_w] and self.tile_row > 0:
             delta_y -= self.speed
             self.is_move = True
-        elif keys_pressed[pygame.K_s] and self.hitbox_player.y < 515:
+        elif keys_pressed[pygame.K_s] and self.tile_row < (ROWS-1):
             delta_y += self.speed
             self.is_move = True
 
         # ? Vertical axis configuration
-        if keys_pressed[pygame.K_a] and self.hitbox_player.x > 0:
+        if keys_pressed[pygame.K_a] and self.tile_clmn > 0:
             delta_x -= self.speed
             self.is_move = True
-        elif keys_pressed[pygame.K_d] and self.hitbox_player.x < 744:
+        elif keys_pressed[pygame.K_d] and self.tile_clmn < (COLUMNS-1):
             delta_x += self.speed
             self.is_move = True
 
@@ -86,8 +113,8 @@ class Player:
             iso_x = (iso_x / length) * self.speed
             iso_y = (iso_y / length) * self.speed
 
-        self.hitbox_player.x += iso_x
-        self.hitbox_player.y += iso_y
+        self.world_x += iso_x
+        self.world_y += iso_y
 
         # ? Update player_state
         if delta_x < 0 and delta_y < 0:
@@ -119,9 +146,11 @@ class Player:
                 # ! Create the projectile
                 if len(self.projectiles) < 10:
                     self.projectiles.append(Fire(
-                        x_shot=self.hitbox_player.x,
-                        y_shot=self.hitbox_player.centery,
-                        speed_shot=8,
+                        width=shot_width,
+                        height=shot_height,
+                        x=self.hitbox_player.x,
+                        y=self.hitbox_player.centery,
+                        speed=8,
                         shot_sprite="shot_sprite",
                         player_state=self.player_state
                     ))
@@ -130,9 +159,9 @@ class Player:
         for shot in list(self.projectiles):
             shot.update()
             # ! If the projectiles is not in the window, remove to the list
-            if (shot.shot_hitbox.x > 800 or shot.shot_hitbox.x < -80
+            if (shot.hitbox.x > 800 or shot.hitbox.x < -80
                     or
-                    shot.shot_hitbox.y > 600 or shot.shot_hitbox.y < -80):
+                    shot.hitbox.y > 600 or shot.hitbox.y < -80):
                 self.projectiles.remove(shot)
 
         # ? Add item in the inventory
@@ -140,25 +169,28 @@ class Player:
             if (
                     item.visible
                     and
-                    self.hitbox_player.colliderect(item.hitbox_item)):
+                    self.hitbox_player.colliderect(item.hitbox)):
                 if self.inventory.put_images(item.name):
                     item.visible = False
 
     # * Draw function for draw the player in the window
-    def draw(self, wn):
+    def draw(self, wn, wn_width, wn_height):
         if self.show_hitbox:
             pygame.draw.rect(wn, (255, 0, 0), self.hitbox_player, 4)
+
+        wn_x = wn_width // 2 - self.width // 2
+        wn_y = wn_height // 2 - self.height // 2
 
         if self.player_state and self.is_move:
             self.anim_count += 1
             anim_list = self.sprites_dict["move"][self.player_state]
             current_frame = anim_list[self.anim_count // 5 % len(anim_list)]
-            wn.blit(current_frame, (self.hitbox_player.x, self.hitbox_player.y))
+            wn.blit(current_frame, (wn_x, wn_y))
         elif self.player_state and not self.is_move:
             # ? Transform the sprites
             self.anim_count = 0
             current_frame = self.sprites_dict["not_move"][self.player_state]
-            wn.blit(current_frame, (self.hitbox_player.x, self.hitbox_player.y))
+            wn.blit(current_frame, (wn_x, wn_y))
         # ? Fuck you
         else:
             print("\n\n  FUCK YOU!!!!  \n\n")
@@ -172,65 +204,47 @@ class Player:
 
 
 # * Fire balls' class
-class Fire:
+class Fire(Objetos):
     # * __init__
-    def __init__(self, x_shot, y_shot, speed_shot, shot_sprite, player_state):
-        self.x = x_shot
-        self.y = y_shot
-        self.width = shot_width
-        self.height = shot_height
+    def __init__(self, *groups, width, height, x, y, speed, shot_sprite, player_state):
+        super().__init__(*groups, width=width, height=height, x=x, y=y)
         self.sprites = sprites_func_shot(self.width, self.height)
-        self.speed = speed_shot
-        self.shot_hitbox = pygame.Rect(self.x, self.y, self.width, self.height)
+        self.speed = speed
         self.shot = self.sprites[shot_sprite]["shot"]
-        self.visible = True
         self.player_state = player_state
 
     # * Update the fire ball
     def update(self):
-        if self.player_state == "right":
-            self.shot_hitbox.x += self.speed
-        elif self.player_state == "left":
-            self.shot_hitbox.x -= self.speed
-        elif self.player_state == "up":
-            self.shot_hitbox.y -= self.speed
-        elif self.player_state == "down":
-            self.shot_hitbox.y += self.speed
-
-        elif self.player_state == "up_left":
-            self.shot_hitbox.x -= self.speed
-            self.shot_hitbox.y -= self.speed
+        if self.player_state == "up_left":
+            self.hitbox.x -= self.speed
+            self.hitbox.y -= self.speed
         elif self.player_state == "up_right":
-            self.shot_hitbox.x += self.speed
-            self.shot_hitbox.y -= self.speed
+            self.hitbox.x += self.speed
+            self.hitbox.y -= self.speed
         elif self.player_state == "down_left":
-            self.shot_hitbox.x -= self.speed
-            self.shot_hitbox.y += self.speed
+            self.hitbox.x -= self.speed
+            self.hitbox.y += self.speed
         elif self.player_state == "down_right":
-            self.shot_hitbox.x += self.speed
-            self.shot_hitbox.y += self.speed
+            self.hitbox.x += self.speed
+            self.hitbox.y += self.speed
 
     # * Draw the fire ball
     def draw(self, wn):
         if self.visible:
-            wn.blit(self.shot, self.shot_hitbox)
+            wn.blit(self.shot, self.hitbox)
 
 
 # * Items' class
-class Items:
+class Items(Objetos):
     # * __init__
-    def __init__(self, x_item, y_item, width_item, height_item, name_item):
-        self.x = x_item
-        self.y = y_item
-        self.width = width_item
-        self.height = height_item
-        self.hitbox_item = pygame.Rect(self.x, self.y, self.width, self.height)
+    def __init__(self, *groups, width, height, x, y, name_item):
+        super().__init__(*groups, width=width, height=height, x=x, y=y)
         self.sprites = sprites_func_items(self.width, self.height)
         self.name = name_item
         self.item = self.sprites["item_sprites"][self.name]
-        self.visible = True
 
     # * Draw the Items
     def draw(self, wn):
         if self.visible:
-            wn.blit(self.item, self.hitbox_item)
+            pygame.draw.rect(wn, (255, 0, 0), self.hitbox, 4)
+            wn.blit(self.item, self.hitbox)

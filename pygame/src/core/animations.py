@@ -77,3 +77,16 @@ def sprites_func_items(item_width, item_height):
     }
 
     return sprites
+
+
+# * Search a free space in the pool to draw the item in the window
+def items_pool(pool, name, x, y):
+    for item in pool:
+        if not item.visible:
+            item.name = name
+            item.item = item.sprites["item_sprites"][name]
+            item.hitbox.x = x
+            item.hitbox.y = y
+            item.visible = True
+            return item
+    return None
