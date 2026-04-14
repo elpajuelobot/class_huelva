@@ -1,5 +1,5 @@
 # Imports
-from pygame import image, transform, Rect
+from pygame import image, transform, Rect, time
 
 
 
@@ -85,8 +85,10 @@ def items_pool(pool, name, x, y):
         if not item.visible:
             item.name = name
             item.item = item.sprites["item_sprites"][name]
-            item.hitbox.x = x
-            item.hitbox.y = y
+            item.world_x = x
+            item.world_y = y
             item.visible = True
+            item.spawn_time = time.get_ticks()
+            item.pickup_delay = time.get_ticks() + 500
             return item
     return None

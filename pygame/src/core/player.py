@@ -9,8 +9,7 @@ from src.core.config import (
     shot_width,
     shot_height,
     shot_cooldown,
-    ROWS,
-    COLUMNS
+    lifetime
 )
 from src.core.inventory import Inventory
 
@@ -66,8 +65,8 @@ class Player:
         self.inventory.update(
             event,
             items,
-            self.hitbox_player.x,
-            self.hitbox_player.y
+            self.world_x,
+            self.world_y
         )
 
     # * Update function for move the player
@@ -83,18 +82,18 @@ class Player:
         )
 
         # ? Horizontal axis configuration
-        if keys_pressed[pygame.K_w] and self.tile_row > 0:
+        if keys_pressed[pygame.K_w]:
             delta_y -= self.speed
             self.is_move = True
-        elif keys_pressed[pygame.K_s] and self.tile_row < (ROWS-1):
+        elif keys_pressed[pygame.K_s]:
             delta_y += self.speed
             self.is_move = True
 
         # ? Vertical axis configuration
-        if keys_pressed[pygame.K_a] and self.tile_clmn > 0:
+        if keys_pressed[pygame.K_a]:
             delta_x -= self.speed
             self.is_move = True
-        elif keys_pressed[pygame.K_d] and self.tile_clmn < (COLUMNS-1):
+        elif keys_pressed[pygame.K_d]:
             delta_x += self.speed
             self.is_move = True
 
@@ -165,9 +164,12 @@ class Player:
                 self.projectiles.remove(shot)
 
         # ? Add item in the inventory
+        current_time = pygame.time.get_ticks()
         for item in items:
             if (
                     item.visible
+                    and
+                    current_time > item.pickup_delay
                     and
                     self.hitbox_player.colliderect(item.hitbox)):
                 if self.inventory.put_images(item.name):
@@ -201,6 +203,9 @@ class Player:
 
         # ? Draw the Inventory
         self.inventory.draw(wn)
+
+        self.hitbox_player.x = wn_x
+        self.hitbox_player.y = wn_y
 
 
 # * Fire balls' class
@@ -242,9 +247,18 @@ class Items(Objetos):
         self.sprites = sprites_func_items(self.width, self.height)
         self.name = name_item
         self.item = self.sprites["item_sprites"][self.name]
+        self.world_x = x
+        self.world_y = y
+        self.spawn_time = 0
+        self.lifetime = lifetime  # * 60*10^4ms (1 min)
+        self.pickup_delay = 0
 
     # * Draw the Items
-    def draw(self, wn):
+    def draw(self, wn, cam_x, cam_y):
         if self.visible:
-            pygame.draw.rect(wn, (255, 0, 0), self.hitbox, 4)
-            wn.blit(self.item, self.hitbox)
+            #pygame.draw.rect(wn, (255, 0, 0), self.hitbox, 4)
+            wn_x = self.world_x - cam_x
+            wn_y = self.world_y - cam_y
+            wn.blit(self.item, (wn_x, wn_y))
+            self.hitbox.x = wn_x
+            self.hitbox.y = wn_y

@@ -3,15 +3,20 @@ import pygame
 
 # Initialize Pygame
 pygame.init()
+pygame.mixer.init()
 
-# ? Window
+# ? Window/World
 height = 600
 width = 800
 MAX_ITEMS_IN_WINDOWS = 10
-COLUMNS = 70
-ROWS = 70
 TILE_W = 128
-TILE_H = 64
+TILE_H = 128
+ISO_W = 128
+ISO_H = 64
+CHUNK = 16
+CHUNK_DISTANCE = 3
+last_chunk_clmn = -999
+last_chunk_row = -999
 
 # ? Colors
 bg_color = (128, 0, 128)
@@ -37,7 +42,7 @@ x_player = 400
 y_player = 300
 widht_player = 55
 height_player = 85
-speed_player = 4
+speed_player = 3
 
 # ? Principal loop
 run = True
@@ -64,3 +69,7 @@ squares_padding = 4
 # ? Items
 width_item = 50
 height_item = 50
+lifetime = 60000
+
+# ? Sounds
+soundtrack = pygame.mixer.music.load("src\data\music\Minecraft 2015 soundtrack.mp3")
