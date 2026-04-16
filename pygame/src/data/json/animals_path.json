@@ -1,0 +1,7 @@
+{
+    "stag": {
+        "idle": {
+            "down": "src\\data\\img\\animals\\stag\\Idle\\SE_idle.png"
+        }
+    }
+}

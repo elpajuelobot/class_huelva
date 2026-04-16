@@ -6,7 +6,7 @@ from src.core.config import (
                         height_player, run, width_item, height_item, speed_player,
                         TILE_W, TILE_H, last_chunk_clmn, last_chunk_row, CHUNK,
                         soundtrack)
-from src.core.player import Player, Items
+from src.core.player import Player, Items, Animals
 from src.core.animations import items_pool
 from src.core.world_generator import World_generator
 
@@ -40,7 +40,14 @@ for item in pool_items:
 items_pool(pool_items, "coin", 100, 103)
 items_pool(pool_items, "cookie", 200, 143)
 items_pool(pool_items, "coin",   300, 345)
-items_pool(pool_items, "crystal", 500, 123)
+items_pool(pool_items, "crystal", 500, 123, "shoot")
+
+# * Animals
+animals = [
+    Animals("stag", 75, 85, 110, 113, 2, 24),
+    Animals("stag", 75, 85, 300, 200, 2, 24),
+]
+
 
 # * Clock
 clock = pygame.time.Clock()
@@ -55,7 +62,7 @@ pygame.mixer.music.play(-1)
 while run:
     # * Keys Control
     keys_pressed = pygame.key.get_pressed()
-    # * Control quit
+    # * Events control
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
@@ -85,6 +92,10 @@ while run:
     hero.update(keys_pressed, pool_items, TILE_W, TILE_H)
     hero.draw(wn, width, height)
 
+    # * Animals
+    for animal in animals:
+        animal.draw(wn, cam_x, cam_y)
+
     # * Draw Items
     for item in pool_items:
         item.draw(wn, cam_x, cam_y)
@@ -93,6 +104,14 @@ while run:
     for item in pool_items:
         if item.visible and current_time - item.spawn_time > item.lifetime:
             item.visible = False
+
+    for shot in list(hero.projectiles):
+        for animal in animals:
+            if animal.alive and shot.hitbox.colliderect(animal.hitbox):
+                animal.take_damage()
+                hero.projectiles.remove(shot)
+                break
+
 
     # * Write the FPS in the window
     wn.blit(fps_text, fps_pos)

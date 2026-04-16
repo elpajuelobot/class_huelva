@@ -4,6 +4,7 @@ from src.core.animations import (
     sprites_func_player,
     sprites_func_shot,
     sprites_func_items,
+    sprites_func_animals
 )
 from src.core.config import (
     shot_width,
@@ -12,6 +13,7 @@ from src.core.config import (
     lifetime
 )
 from src.core.inventory import Inventory
+import json
 
 
 class Objetos(pygame.sprite.Sprite):
@@ -242,7 +244,7 @@ class Fire(Objetos):
 # * Items' class
 class Items(Objetos):
     # * __init__
-    def __init__(self, *groups, width, height, x, y, name_item):
+    def __init__(self, *groups, width, height, x, y, name_item, item_power=None):
         super().__init__(*groups, width=width, height=height, x=x, y=y)
         self.sprites = sprites_func_items(self.width, self.height)
         self.name = name_item
@@ -252,6 +254,7 @@ class Items(Objetos):
         self.spawn_time = 0
         self.lifetime = lifetime  # * 60*10^4ms (1 min)
         self.pickup_delay = 0
+        self.power = item_power
 
     # * Draw the Items
     def draw(self, wn, cam_x, cam_y):
@@ -262,3 +265,46 @@ class Items(Objetos):
             wn.blit(self.item, (wn_x, wn_y))
             self.hitbox.x = wn_x
             self.hitbox.y = wn_y
+
+
+# * Animals' class
+class Animals():
+    def __init__(self, width, height, x, y, speed, frames, health=3):
+        self.world_x = x
+        self.world_y = y
+        self.width = width
+        self.height = height
+        self.hitbox = pygame.Rect(
+            self.world_x, self.world_y,
+            self.width, self.height)
+        self.speed = speed
+        self.frames = frames
+        self.sprites_dic = {"animal_sprites": {}}
+        with open("src\\data\\json\\animals_path.json", "r", encoding="utf-8") as data:
+            self.animals_paths = json.load(data)
+        sprites_func_animals(self.animals_paths["stag"]["idle"]["down"], self.frames, "down", self.width, self.height, "stag", "idle", self.sprites_dic)
+        self.anim_count = 0
+        self.health = health
+        self.alive = True
+
+    def take_damage(self):
+        self.health -= 1
+        if self.health <= 0:
+            self.alive = False
+
+    def draw(self, wn, cam_x, cam_y):
+        if not self.alive:
+            return
+        wn_x = self.world_x - cam_x
+        wn_y = self.world_y - cam_y
+        pygame.draw.rect(wn, (255, 0, 0), self.hitbox, 4)
+        frames = self.sprites_dic["animal_sprites"]["stag"]["idle"]["down"]
+        current_frame = frames[self.anim_count // 5 % len(frames)]
+        wn.blit(current_frame, (wn_x, wn_y))
+        self.anim_count += 1
+
+        if self.anim_count >= len(frames) * 5:
+            self.anim_count = 0
+
+        self.hitbox.x = wn_x
+        self.hitbox.y = wn_y

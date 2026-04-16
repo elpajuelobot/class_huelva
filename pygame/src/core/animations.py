@@ -80,7 +80,7 @@ def sprites_func_items(item_width, item_height):
 
 
 # * Search a free space in the pool to draw the item in the window
-def items_pool(pool, name, x, y):
+def items_pool(pool, name, x, y, power=None):
     for item in pool:
         if not item.visible:
             item.name = name
@@ -90,5 +90,31 @@ def items_pool(pool, name, x, y):
             item.visible = True
             item.spawn_time = time.get_ticks()
             item.pickup_delay = time.get_ticks() + 500
+            item.power = power
             return item
     return None
+
+
+# * Animals' sprites
+def sprites_func_animals(path, num_sprites, direction, width, height, animal, status, sprites):
+    img = image.load(path).convert_alpha()
+    sheet_width, sheet_height = img.get_size()
+
+    cell_width = sheet_width / num_sprites
+    cell_height = sheet_height
+
+    valid_directions = ["right", "up", "down", "left"]
+    if direction not in valid_directions:
+        raise ValueError(f"Dirección '{direction}' no válida. Usa: {valid_directions}")
+
+    move_frames = []
+    for f in range(num_sprites):
+        first_rect = Rect(int(f * cell_width), 0, int(cell_width), cell_height)
+        first_sprite = img.subsurface(first_rect)
+
+        draw_area = first_sprite.get_bounding_rect()
+        final_sprite = first_sprite.subsurface(draw_area)
+
+        move_frames.append(transform.scale(final_sprite, (width, height)))
+
+    sprites["animal_sprites"].setdefault(animal, {}).setdefault(status, {})[direction] = move_frames

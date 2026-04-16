@@ -41,8 +41,8 @@ class World_generator:
             "1101": 10, ## ? Izquierda solo es agua
             "0101": 11, ## ? Paralelo horizontal no es agua
             "1010": 12, ## ? Paralelo vertical no es agua
-            "1110": 13, ## ? Arriba solo es agua. Está mal
-            "1011": 14, ## ? Abajo solo es agua REAL
+            "1110": 13, ## ? Arriba solo es agua
+            "1011": 14, ## ? Abajo solo es agua
             "0111": 15, ## ? Derecha solo es agua
         }
         self.tiles_sand = load_tile(0)
