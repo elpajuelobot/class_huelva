@@ -85,9 +85,9 @@ def sprites_func_items(item_width, item_height):
 
 
 # * Search a free space in the pool to draw the item in the window
-def items_pool(pool, name, x, y, durability, power=None):
+def items_pool(pool, name, x, y, health, durability, power=None):
     for item in pool:
-        if not item.visible and durability > 0:
+        if not item.visible and health > 0:
             item.name = name
             item.item = item.sprites["item_sprites"][name]
             item.world_x = x
@@ -96,6 +96,7 @@ def items_pool(pool, name, x, y, durability, power=None):
             item.spawn_time = time.get_ticks()
             item.pickup_delay = time.get_ticks() + 500
             item.power = power
+            item.health = health
             item.durability = durability
             return item
     return None

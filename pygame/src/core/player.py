@@ -175,7 +175,7 @@ class Player(Entities):
                     current_time > item.pickup_delay
                     and
                     self.hitbox.colliderect(item.hitbox)):
-                if self.inventory.put_images(item.name, item.durability):
+                if self.inventory.put_images(item.name, item.durability, item.health):
                     item.visible = False
 
     # * Draw function for draw the player in the window
@@ -351,9 +351,7 @@ class Animals(Entities):
             health_x = x - self.cam_x
             health_y = y - self.cam_y
             calculo_barra = int((self.health / self.initial_health) * width_health)
-            #borde = pygame.Rect(health_x, health_y, width_health, height_health)
             rectangulo = pygame.Rect(health_x, health_y, calculo_barra, height_health)
             pygame.draw.rect(wn, (255, 0, 100), rectangulo)
-            #pygame.draw.rect(wn, (0, 0, 255), borde, 3)
         else:
             self.health = 0

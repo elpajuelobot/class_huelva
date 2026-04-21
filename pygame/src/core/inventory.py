@@ -5,7 +5,7 @@ from src.core.config import (
                             width, height, grey_dark, grey_light,
                             grey, grey_highlight, inventory_squares,
                             squares_size, squares_padding, red, inventory_font,
-                            purple, white)
+                            purple, white, width_health_invt, height_health_invt)
 import json
 
 # Initialize Pygame
@@ -42,7 +42,7 @@ class Inventory:
         self.actual_item = None
 
     # * Get the items to draw them later (Max 10 items)
-    def put_images(self, item_name, item_durability):
+    def put_images(self, item_name, item_durability, item_health):
         with open("src\\data\\json\\items_not_duplicated.json", "r", encoding="utf-8") as data:
             not_duplicated = json.load(data)
         for i in range(inventory_squares):
@@ -61,19 +61,22 @@ class Inventory:
                             self.items[duplicated]["name"] = item_name
                             self.items[duplicated]["count"] = 1
                             self.items[duplicated]["durability"] = item_durability
+                            self.items[duplicated]["health"] = item_health
                             return True
         for i in range(inventory_squares):
             if self.items[i]["name"] is None:
                 self.items[i]["name"] = item_name
                 self.items[i]["count"] = 1
                 self.items[i]["durability"] = item_durability
+                self.items[i]["health"] = item_health
                 return True
         return False  # ? Inventory Full
 
     # * Update the inventory
     def update(self, event, items, player_x, player_y):
         if self.selected_item is not None:
-            if self.items[self.selected_item]["durability"] <= 0:
+            if self.items[self.selected_item]["health"] <= 0:
+                self.items[self.selected_item]["health"] = 0
                 self.items[self.selected_item]["durability"] = 0
                 self.items[self.selected_item]["name"] = None
                 self.items[self.selected_item]["count"] = 0
@@ -101,11 +104,12 @@ class Inventory:
             if event.key == pygame.K_q and self.selected_item is not None:
                 if self.items[self.selected_item]["name"] is not None:
                     items_pool(
-                        items,
-                        self.items[self.selected_item]["name"],
-                        player_x + 100,
-                        player_y,
-                        self.items[self.selected_item]["durability"]
+                        pool=items,
+                        name=self.items[self.selected_item]["name"],
+                        x=player_x + 100,
+                        y=player_y,
+                        health=self.items[self.selected_item]["health"],
+                        durability=self.items[self.selected_item]["durability"]
                     )
 
                     self.items[self.selected_item]["count"] -= 1
@@ -141,7 +145,7 @@ class Inventory:
 
             if self.selected_item == i:
                 pygame.draw.rect(wn, grey_highlight, slot_rect, border_radius=3)
-                pygame.draw.rect(wn, red, slot_rect, width=5, border_radius=3)
+                #pygame.draw.rect(wn, red, slot_rect, width=5, border_radius=3)
             else:
                 pygame.draw.rect(wn, grey_light, slot_rect, border_radius=3)
             pygame.draw.rect(wn, grey, slot_rect, width=2, border_radius=3)
@@ -171,7 +175,26 @@ class Inventory:
                         )
                         wn.blit(self.items[i]["text_count"], (axis_x, axis_y))
 
+                    health_x = slot_x + 4
+                    health_y = slot_y + squares_size - height_health_invt - 4
+                    self.barra_healt(wn, health_x, health_y, i)
+
     # * Use items
     def use_item(self):
-        self.items[self.selected_item]["durability"] -= 1
-        print(self.selected_item)
+        self.items[self.selected_item]["health"] -= 1
+
+    # * Draw health bar
+    def barra_healt(self, wn, x, y, index):
+        item = self.items[index]
+        if item["durability"] > 1:
+            if item["health"] > 0:
+                if item["health"] < item["durability"]:
+                    calculo_barra = int(
+                        (
+                            item["health"] / item["durability"]
+                        ) * width_health_invt
+                    )
+                    rectangulo = pygame.Rect(x, y, calculo_barra, height_health_invt)
+                    pygame.draw.rect(wn, (255, 0, 100), rectangulo)
+            else:
+                item["health"] = 0

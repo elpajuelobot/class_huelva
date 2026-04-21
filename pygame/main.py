@@ -45,10 +45,10 @@ pool_items = [
 for item in pool_items:
     item.visible = False
 
-items_pool(pool_items, "sword", 100, 103, 5)
-items_pool(pool_items, "cookie", 200, 143, 1)
-items_pool(pool_items, "sword",   300, 345, 5)
-items_pool(pool_items, "crystal", 500, 123, 1)
+items_pool(pool=pool_items, name="sword", x=100, y=103, health=5, durability=5)
+items_pool(pool=pool_items, name="cookie", x=200, y=143, health=1, durability=1)
+items_pool(pool=pool_items, name="sword",   x=300, y=345, health=5, durability=5)
+items_pool(pool=pool_items, name="crystal", x=500, y=123, health=1, durability=1)
 
 # * Animals
 pool_animals = [

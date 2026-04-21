@@ -83,3 +83,6 @@ soundtrack = pygame.mixer.music.load("src\data\music\Minecraft 2015 soundtrack.m
 # ! Animals
 width_health = 50
 height_health = 5
+# ! Items(inventory)
+width_health_invt = 40
+height_health_invt = 5
