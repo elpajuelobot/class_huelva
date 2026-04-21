@@ -10,13 +10,17 @@ from src.core.config import (
     shot_width,
     shot_height,
     shot_cooldown,
-    lifetime
+    lifetime,
+    width_health,
+    height_health,
+    font,
+    white
 )
 from src.core.inventory import Inventory
 import json
 
 
-class Objetos(pygame.sprite.Sprite):
+class Entities(pygame.sprite.Sprite):
     def __init__(self, *groups, width, height, x, y):
         super().__init__(*groups)
         self.width = width
@@ -30,20 +34,10 @@ class Objetos(pygame.sprite.Sprite):
         self.visible = True
 
 
-# * Player's class
-class Player:
-    # * __Init__
-    def __init__(
-            self, width_player, height_player,
-            x_player, y_player, speed_player, sprites_player):
-        self.width = width_player  # * Player's width
-        self.height = height_player  # * Player's height
+class Player(Entities):
+    def __init__(self, *groups, width, height, x, y, speed_player, sprites_player, wn_width, wn_height, inventory):
+        super().__init__(*groups, width=width, height=height, x=x, y=y)
         self.sprites = sprites_func_player(self.width, self.height)
-        self.x = x_player  # * Player's x
-        self.y = y_player  # * Player's y
-        self.hitbox_player = pygame.Rect(
-            self.x, self.y,
-            self.width, self.height)  # * Player's hitbox
         self.speed = speed_player  # * Player's speed
         self.player_state = "right"  # * Player's state
         self.sprites_dict = self.sprites[sprites_player]  # * Player's sprites
@@ -55,12 +49,16 @@ class Player:
         self.can_create_shot = False  # * when player can create a projectiles
         self.last_shot_time = 0  # * The time of the last fire ball
         self.shot_count_down = shot_cooldown  # * Delay for the fire balls
-        self.inventory = Inventory()  # * Create the inventory
-        self.world_x = x_player
-        self.world_y = y_player
+        self.inventory = inventory  # * Create the inventory
+        self.world_x = x
+        self.world_y = y
         # ? Update the actual column and row
         self.tile_clmn = 0
         self.tile_row = 0
+        self.depth = self.tile_clmn + self.tile_row
+        self.wn_width = wn_width
+        self.wn_height = wn_height
+        self.name = "Scot"
 
     # * Update de inventory
     def update_inventory(self, event, items):
@@ -72,15 +70,16 @@ class Player:
         )
 
     # * Update function for move the player
-    def update(self, keys_pressed, items, tile_w, tile_h):
+    def update(self, keys_pressed, items, tile_w, tile_h, entities):
         delta_x = 0
         delta_y = 0
+        base_y = self.world_y + self.height
         self.is_move = False
         self.tile_clmn = round(
-            ((self.world_x / (tile_w / 2) + self.world_y / (tile_h / 2)) / 2), 2
+            ((self.world_x / (tile_w / 2) + base_y / (tile_h / 2)) / 2), 2
         )
         self.tile_row = round(
-            ((self.world_y / (tile_h / 2) - self.world_x / (tile_w / 2)) / 2), 2
+            ((base_y / (tile_h / 2) - self.world_x / (tile_w / 2)) / 2), 2
         )
 
         # ? Horizontal axis configuration
@@ -117,6 +116,8 @@ class Player:
         self.world_x += iso_x
         self.world_y += iso_y
 
+        self.depth = (self.tile_clmn + self.tile_row) - 0.5
+
         # ? Update player_state
         if delta_x < 0 and delta_y < 0:
             pass
@@ -149,8 +150,8 @@ class Player:
                     self.projectiles.append(Fire(
                         width=shot_width,
                         height=shot_height,
-                        x=self.hitbox_player.x,
-                        y=self.hitbox_player.centery,
+                        x=self.hitbox.x,
+                        y=self.hitbox.centery,
                         speed=8,
                         shot_sprite="shot_sprite",
                         player_state=self.player_state
@@ -173,17 +174,17 @@ class Player:
                     and
                     current_time > item.pickup_delay
                     and
-                    self.hitbox_player.colliderect(item.hitbox)):
-                if self.inventory.put_images(item.name):
+                    self.hitbox.colliderect(item.hitbox)):
+                if self.inventory.put_images(item.name, item.durability):
                     item.visible = False
 
     # * Draw function for draw the player in the window
-    def draw(self, wn, wn_width, wn_height):
+    def draw(self, wn):
         if self.show_hitbox:
-            pygame.draw.rect(wn, (255, 0, 0), self.hitbox_player, 4)
+            pygame.draw.rect(wn, (255, 0, 0), self.hitbox, 4)
 
-        wn_x = wn_width // 2 - self.width // 2
-        wn_y = wn_height // 2 - self.height // 2
+        wn_x = self.wn_width // 2 - self.width // 2
+        wn_y = self.wn_height // 2 - self.height // 2
 
         if self.player_state and self.is_move:
             self.anim_count += 1
@@ -203,15 +204,23 @@ class Player:
         for shot in list(self.projectiles):
             shot.draw(wn)
 
-        # ? Draw the Inventory
-        self.inventory.draw(wn)
+        self.hitbox.x = wn_x
+        self.hitbox.y = wn_y
 
-        self.hitbox_player.x = wn_x
-        self.hitbox_player.y = wn_y
+    def attack(self, entities, events):
+        for entity in entities:
+            if events.type == pygame.MOUSEBUTTONDOWN and events.button == 1:
+                if (
+                        entity.life and
+                        self.hitbox.colliderect(entity.hitbox) and
+                        self.inventory.actual_item == "sword"):
+                    self.inventory.use_item()
+                    entity.take_damage()
+                    break
 
 
 # * Fire balls' class
-class Fire(Objetos):
+class Fire(Entities):
     # * __init__
     def __init__(self, *groups, width, height, x, y, speed, shot_sprite, player_state):
         super().__init__(*groups, width=width, height=height, x=x, y=y)
@@ -242,9 +251,9 @@ class Fire(Objetos):
 
 
 # * Items' class
-class Items(Objetos):
+class Items(Entities):
     # * __init__
-    def __init__(self, *groups, width, height, x, y, name_item, item_power=None):
+    def __init__(self, *groups, width, height, x, y, name_item, durability, item_power=None):
         super().__init__(*groups, width=width, height=height, x=x, y=y)
         self.sprites = sprites_func_items(self.width, self.height)
         self.name = name_item
@@ -255,6 +264,8 @@ class Items(Objetos):
         self.lifetime = lifetime  # * 60*10^4ms (1 min)
         self.pickup_delay = 0
         self.power = item_power
+        self.durability = durability
+        self.health = durability
 
     # * Draw the Items
     def draw(self, wn, cam_x, cam_y):
@@ -268,43 +279,81 @@ class Items(Objetos):
 
 
 # * Animals' class
-class Animals():
-    def __init__(self, width, height, x, y, speed, frames, health=3):
-        self.world_x = x
-        self.world_y = y
-        self.width = width
-        self.height = height
-        self.hitbox = pygame.Rect(
-            self.world_x, self.world_y,
-            self.width, self.height)
+class Animals(Entities):
+    def __init__(self, width, height, x, y, speed, frames, animal, visible=True, health=3):
+        super().__init__(width=width, height=height, x=x, y=y)
         self.speed = speed
         self.frames = frames
+        self.animal = animal
         self.sprites_dic = {"animal_sprites": {}}
-        with open("src\\data\\json\\animals_path.json", "r", encoding="utf-8") as data:
-            self.animals_paths = json.load(data)
-        sprites_func_animals(self.animals_paths["stag"]["idle"]["down"], self.frames, "down", self.width, self.height, "stag", "idle", self.sprites_dic)
         self.anim_count = 0
         self.health = health
-        self.alive = True
+        self.initial_health = health
+        self.life = True
+        self.tile_clmn = 0
+        self.tile_row = 0
+        self.depth = self.tile_clmn + self.tile_row
+        self.cam_x = 0
+        self.cam_y = 0
+        self.world_x = self.x
+        self.world_y = self.y
+        self.visible = visible
+
+    def load_sprites(self):
+        with open("src\\data\\json\\animals_path.json", "r", encoding="utf-8") as data:
+            self.animals_paths = json.load(data)
+        sprites_func_animals(
+            self.animals_paths[self.animal]["idle"]["down"],
+            self.frames, "down", self.width, self.height,
+            self.animal, "idle", self.sprites_dic
+        )
 
     def take_damage(self):
         self.health -= 1
         if self.health <= 0:
-            self.alive = False
+            self.life = False
 
-    def draw(self, wn, cam_x, cam_y):
-        if not self.alive:
-            return
-        wn_x = self.world_x - cam_x
-        wn_y = self.world_y - cam_y
-        pygame.draw.rect(wn, (255, 0, 0), self.hitbox, 4)
-        frames = self.sprites_dic["animal_sprites"]["stag"]["idle"]["down"]
-        current_frame = frames[self.anim_count // 5 % len(frames)]
-        wn.blit(current_frame, (wn_x, wn_y))
-        self.anim_count += 1
+    def update(self, tile_w, tile_h, cam_x, cam_y):
+        if not self.life:
+            self.visible = False
+        if self.visible:
+            self.base_y = self.world_y + self.height
+            self.tile_clmn = round(
+                ((self.world_x / (tile_w / 2) + self.base_y / (tile_h / 2)) / 2), 2
+            )
+            self.tile_row = round(
+                ((self.base_y / (tile_h / 2) - self.world_x / (tile_w / 2)) / 2), 2
+            )
 
-        if self.anim_count >= len(frames) * 5:
-            self.anim_count = 0
+            self.depth = self.tile_clmn + self.tile_row
 
-        self.hitbox.x = wn_x
-        self.hitbox.y = wn_y
+            self.cam_x = cam_x
+            self.cam_y = cam_y
+
+    def draw(self, wn):
+        if self.visible:
+            wn_x = self.world_x - self.cam_x
+            wn_y = self.world_y - self.cam_y
+            #pygame.draw.rect(wn, (255, 0, 0), self.hitbox, 4)
+            frames = self.sprites_dic["animal_sprites"][self.animal]["idle"]["down"]
+            current_frame = frames[self.anim_count // 5 % len(frames)]
+            wn.blit(current_frame, (wn_x, wn_y))
+            self.anim_count += 1
+
+            if self.anim_count >= len(frames) * 5:
+                self.anim_count = 0
+
+            self.hitbox.x = wn_x
+            self.hitbox.y = wn_y
+
+    def barra_healt(self, wn, x, y):
+        if self.health > 0:
+            health_x = x - self.cam_x
+            health_y = y - self.cam_y
+            calculo_barra = int((self.health / self.initial_health) * width_health)
+            #borde = pygame.Rect(health_x, health_y, width_health, height_health)
+            rectangulo = pygame.Rect(health_x, health_y, calculo_barra, height_health)
+            pygame.draw.rect(wn, (255, 0, 100), rectangulo)
+            #pygame.draw.rect(wn, (0, 0, 255), borde, 3)
+        else:
+            self.health = 0

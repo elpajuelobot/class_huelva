@@ -9,6 +9,7 @@ pygame.mixer.init()
 height = 600
 width = 800
 MAX_ITEMS_IN_WINDOWS = 10
+MAX_ANIMALS_IN_WINDOWS = 5
 TILE_W = 128
 TILE_H = 128
 ISO_W = 128
@@ -40,7 +41,7 @@ fps_cap = 60
 # ? Player
 x_player = 400
 y_player = 300
-widht_player = 55
+width_player = 55
 height_player = 85
 speed_player = 3
 
@@ -71,5 +72,14 @@ width_item = 50
 height_item = 50
 lifetime = 60000
 
+# ? Animals
+stag_width = 85
+stag_height = 95
+
 # ? Sounds
 soundtrack = pygame.mixer.music.load("src\data\music\Minecraft 2015 soundtrack.mp3")
+
+# ? Health
+# ! Animals
+width_health = 50
+height_health = 5

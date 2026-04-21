@@ -5,7 +5,8 @@ from src.core.config import (
                             width, height, grey_dark, grey_light,
                             grey, grey_highlight, inventory_squares,
                             squares_size, squares_padding, red, inventory_font,
-                            purple, width_item, height_item, white)
+                            purple, white)
+import json
 
 # Initialize Pygame
 pygame.init()
@@ -29,7 +30,7 @@ class Inventory:
         self.bar_rect = pygame.Rect(bar_x, bar_y, bar_width, bar_height)
         # * Dict with the Items
         self.items = (
-            {i: {"name": None, "count": 0, "text_count": None}
+            {i: {"name": None, "count": 0, "text_count": None, "durability": 0, "health": 0}
                 for i in range(inventory_squares)}
         )
         # * Items' Sprites
@@ -38,27 +39,48 @@ class Inventory:
                             item_height=squares_size - 8
         )
         self.selected_item = None
+        self.actual_item = None
 
     # * Get the items to draw them later (Max 10 items)
-    def put_images(self, item_name):
+    def put_images(self, item_name, item_durability):
+        with open("src\\data\\json\\items_not_duplicated.json", "r", encoding="utf-8") as data:
+            not_duplicated = json.load(data)
         for i in range(inventory_squares):
             if self.items[i]["name"] == item_name:
-                self.items[i]["count"] += 1
-                self.items[i]["text_count"] = (
-                    inventory_font.render(
-                        f"x{self.items[i]["count"]}", True, white
+                if self.items[i]["name"] not in not_duplicated["not_duplicated"]:
+                    self.items[i]["count"] += 1
+                    self.items[i]["text_count"] = (
+                        inventory_font.render(
+                            f"x{self.items[i]["count"]}", True, white
+                        )
                     )
-                )
-                return True
+                    return True
+                else:
+                    for duplicated in range(inventory_squares):
+                        if self.items[duplicated]["name"] is None:
+                            self.items[duplicated]["name"] = item_name
+                            self.items[duplicated]["count"] = 1
+                            self.items[duplicated]["durability"] = item_durability
+                            return True
         for i in range(inventory_squares):
             if self.items[i]["name"] is None:
                 self.items[i]["name"] = item_name
                 self.items[i]["count"] = 1
+                self.items[i]["durability"] = item_durability
                 return True
         return False  # ? Inventory Full
 
     # * Update the inventory
     def update(self, event, items, player_x, player_y):
+        if self.selected_item is not None:
+            if self.items[self.selected_item]["durability"] <= 0:
+                self.items[self.selected_item]["durability"] = 0
+                self.items[self.selected_item]["name"] = None
+                self.items[self.selected_item]["count"] = 0
+                self.items[self.selected_item]["text_count"] = None
+                self.selected_item = None
+                self.actual_item = None
+
         if event.type == pygame.KEYDOWN:
             key_map = {
                 pygame.K_1: 0, pygame.K_2: 1, pygame.K_3: 2,
@@ -71,8 +93,10 @@ class Inventory:
                 square = key_map[event.key]
                 if self.items[square]["name"] is not None:
                     self.selected_item = square
+                    self.actual_item = self.items[square]["name"]
                 else:
                     self.selected_item = None
+                    self.actual_item = None
 
             if event.key == pygame.K_q and self.selected_item is not None:
                 if self.items[self.selected_item]["name"] is not None:
@@ -80,7 +104,8 @@ class Inventory:
                         items,
                         self.items[self.selected_item]["name"],
                         player_x + 100,
-                        player_y
+                        player_y,
+                        self.items[self.selected_item]["durability"]
                     )
 
                     self.items[self.selected_item]["count"] -= 1
@@ -94,6 +119,7 @@ class Inventory:
                         self.items[self.selected_item]["name"] = None
                         self.items[self.selected_item]["text_count"] = None
                         self.selected_item = None
+                        self.actual_item = None
 
                     elif self.items[self.selected_item]["count"] == 1:
                         self.items[self.selected_item]["text_count"] = None
@@ -144,3 +170,8 @@ class Inventory:
                             (axis_x + 7, axis_y + 8), 9
                         )
                         wn.blit(self.items[i]["text_count"], (axis_x, axis_y))
+
+    # * Use items
+    def use_item(self):
+        self.items[self.selected_item]["durability"] -= 1
+        print(self.selected_item)

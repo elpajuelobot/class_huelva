@@ -1,7 +1,8 @@
-import json
+from ursina import *
+from ursina.prefabs.first_person_controller import FirstPersonController
 
-with open("src\\data\\json\\animals_path.json", "r", encoding="utf-8") as data:
-    paths = json.load(data)
+app = Ursina()
+player = FirstPersonController()
+Sky()
 
-
-print(paths["stag"])
+app.run()

@@ -72,6 +72,11 @@ def sprites_func_items(item_width, item_height):
             "crystal": transform.scale(
                 image.load("src\\data\\img\\objects\\crystal.png"),
                 (item_width, item_height)
+            ),
+
+            "sword": transform.scale(
+                image.load("src\\data\\img\\objects\\sword.png"),
+                (item_width, item_height)
             )
         }
     }
@@ -80,9 +85,9 @@ def sprites_func_items(item_width, item_height):
 
 
 # * Search a free space in the pool to draw the item in the window
-def items_pool(pool, name, x, y, power=None):
+def items_pool(pool, name, x, y, durability, power=None):
     for item in pool:
-        if not item.visible:
+        if not item.visible and durability > 0:
             item.name = name
             item.item = item.sprites["item_sprites"][name]
             item.world_x = x
@@ -91,6 +96,7 @@ def items_pool(pool, name, x, y, power=None):
             item.spawn_time = time.get_ticks()
             item.pickup_delay = time.get_ticks() + 500
             item.power = power
+            item.durability = durability
             return item
     return None
 
@@ -118,3 +124,23 @@ def sprites_func_animals(path, num_sprites, direction, width, height, animal, st
         move_frames.append(transform.scale(final_sprite, (width, height)))
 
     sprites["animal_sprites"].setdefault(animal, {}).setdefault(status, {})[direction] = move_frames
+
+
+# * Search a free space in the pool to draw the animal in the window
+def animals_pool(pool, name, x, y, width, height, speed, frames):
+    for animal in pool:
+        if not animal.visible:
+            animal.animal = name
+            animal.world_x = x
+            animal.world_y = y
+            animal.width = width
+            animal.height = height
+            animal.hitbox.width = width
+            animal.hitbox.height = height
+            animal.speed = speed
+            animal.frames = frames
+            animal.sprites_dic = {"animal_sprites": {}}
+            animal.load_sprites()
+            animal.visible = True
+            return animal
+    return None
