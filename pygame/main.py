@@ -6,7 +6,7 @@ from src.core.config import (
                         height_player, run, width_item, height_item, speed_player,
                         TILE_W, TILE_H, last_chunk_clmn, last_chunk_row, CHUNK,
                         MAX_ANIMALS_IN_WINDOWS, stag_width, stag_height)
-from src.core.player import Player, Items, Animals
+from src.core.player import Player, Items, Animals, Fire
 from src.core.animations import items_pool, animals_pool
 from src.core.world_generator import World_generator
 from src.core.inventory import Inventory
@@ -35,6 +35,7 @@ hero = Player(
     wn_height=height, inventory=inventory
 )
 
+
 # * Items
 pool_items = [
     Items(x=0, y=0, width=width_item, height=height_item, name_item="banana", durability=0)
@@ -45,7 +46,7 @@ pool_items = [
 for item in pool_items:
     item.visible = False
 
-items_pool(pool=pool_items, name="sword", x=100, y=103, health=5, durability=5)
+items_pool(pool=pool_items, name="coin", x=100, y=103, health=1, durability=1)
 items_pool(pool=pool_items, name="cookie", x=200, y=143, health=1, durability=1)
 items_pool(pool=pool_items, name="sword",   x=300, y=345, health=5, durability=5)
 items_pool(pool=pool_items, name="crystal", x=500, y=123, health=1, durability=1)
@@ -61,10 +62,11 @@ animals_pool(pool_animals, "stag", 110, 113, stag_width, stag_height, 2, 24)
 
 # TODO: IMPORTANTE. METER EN ESTA LISTA TODAS LAS ENTIDADES CREADAS
 entities_list = [e for e in pool_animals if e.visible]
+items_list = [e for e in pool_items if e.visible]
 
 players_list = [hero]
 
-sprites_list = entities_list + players_list
+sprites_list = entities_list + players_list + items_list
 
 # * Clock
 clock = pygame.time.Clock()
@@ -73,7 +75,7 @@ clock = pygame.time.Clock()
 font = pygame.font.SysFont(f_type, f_size)
 
 # * Play music
-pygame.mixer.music.play(-1)
+#pygame.mixer.music.play(-1)
 
 # * Main loop
 while run:
@@ -85,7 +87,7 @@ while run:
             run = False
 
         hero.update_inventory(event, pool_items)
-        hero.attack(entities_list, event)
+        hero.attack(event)
 
     # * Camera
     cam_x = hero.world_x - width // 2
@@ -107,11 +109,7 @@ while run:
     fps_text = font.render(f"FPS: {int(clock.get_fps())}", True, fps_f_color)
 
     # * Player
-    hero.update(keys_pressed, pool_items, TILE_W, TILE_H, 1)
-
-    # * Animals
-    #stag.update(TILE_W, TILE_H, cam_x, cam_y)
-    #stag2.update(TILE_W, TILE_H, cam_x, cam_y)
+    hero.update(keys_pressed, pool_items, TILE_W, TILE_H, cam_x, cam_y, entities_list, world)
 
     sprites_list.sort(key=lambda x: x.depth)
     for entity in sprites_list:
@@ -120,10 +118,9 @@ while run:
         entity.update(TILE_W, TILE_H, cam_x, cam_y)
         entity.barra_healt(wn, entity.world_x, entity.world_y)
 
-
     # * Draw Items
     for item in pool_items:
-        item.draw(wn, cam_x, cam_y)
+        item.update(TILE_W, TILE_H, cam_x, cam_y)
 
     current_time = pygame.time.get_ticks()
     for item in pool_items:

@@ -12,9 +12,7 @@ from src.core.config import (
     shot_cooldown,
     lifetime,
     width_health,
-    height_health,
-    font,
-    white
+    height_health
 )
 from src.core.inventory import Inventory
 import json
@@ -32,6 +30,7 @@ class Entities(pygame.sprite.Sprite):
             self.width, self.height
         )
         self.visible = True
+        self.health_bar = True
 
 
 class Player(Entities):
@@ -59,6 +58,7 @@ class Player(Entities):
         self.wn_width = wn_width
         self.wn_height = wn_height
         self.name = "Scot"
+        self.entities = None
 
     # * Update de inventory
     def update_inventory(self, event, items):
@@ -70,7 +70,8 @@ class Player(Entities):
         )
 
     # * Update function for move the player
-    def update(self, keys_pressed, items, tile_w, tile_h, entities):
+    def update(self, keys_pressed, items, tile_w, tile_h, cam_x, cam_y, entities, world):
+        self.entities = entities
         delta_x = 0
         delta_y = 0
         base_y = self.world_y + self.height
@@ -113,21 +114,24 @@ class Player(Entities):
             iso_x = (iso_x / length) * self.speed
             iso_y = (iso_y / length) * self.speed
 
-        self.world_x += iso_x
-        self.world_y += iso_y
+        self.tile_clmn_future = (
+            ((self.world_x + iso_x) / (tile_w / 2) + (self.world_y + self.height + iso_y) / (tile_h / 2)) / 2
+        )
+        self.tile_row_future = (
+            ((self.world_y + self.height + iso_y) / (tile_h / 2) - (self.world_x + iso_x) / (tile_w / 2)) / 2
+        )
+
+        terrain = world.get_terrain(self.tile_clmn_future, self.tile_row_future)
+        print(terrain)
+
+        if terrain != "water":
+            self.world_x += iso_x
+            self.world_y += iso_y
 
         self.depth = (self.tile_clmn + self.tile_row) - 0.5
 
         # ? Update player_state
-        if delta_x < 0 and delta_y < 0:
-            pass
-        elif delta_x > 0 and delta_y < 0:
-            pass
-        elif delta_x < 0 and delta_y > 0:
-            pass
-        elif delta_x > 0 and delta_y > 0:
-            pass
-        elif delta_y < 0:
+        if delta_y < 0:
             self.player_state = "up_right"
         elif delta_y > 0:
             self.player_state = "down_left"
@@ -150,8 +154,8 @@ class Player(Entities):
                     self.projectiles.append(Fire(
                         width=shot_width,
                         height=shot_height,
-                        x=self.hitbox.x,
-                        y=self.hitbox.centery,
+                        x=self.world_x,
+                        y=self.world_y,
                         speed=8,
                         shot_sprite="shot_sprite",
                         player_state=self.player_state
@@ -159,11 +163,22 @@ class Player(Entities):
 
         # ? Update all the prjectiles
         for shot in list(self.projectiles):
-            shot.update()
+            shot.update(cam_x, cam_y)
+            remove = False
             # ! If the projectiles is not in the window, remove to the list
             if (shot.hitbox.x > 800 or shot.hitbox.x < -80
                     or
                     shot.hitbox.y > 600 or shot.hitbox.y < -80):
+                remove = True
+
+            if not remove:
+                for entity in self.entities:
+                    if entity.life and shot.hitbox.colliderect(entity.hitbox):
+                        entity.take_damage(damage=3)
+                        remove = True
+                        break
+
+            if remove and shot in self.projectiles:
                 self.projectiles.remove(shot)
 
         # ? Add item in the inventory
@@ -207,16 +222,14 @@ class Player(Entities):
         self.hitbox.x = wn_x
         self.hitbox.y = wn_y
 
-    def attack(self, entities, events):
-        for entity in entities:
-            if events.type == pygame.MOUSEBUTTONDOWN and events.button == 1:
-                if (
-                        entity.life and
-                        self.hitbox.colliderect(entity.hitbox) and
-                        self.inventory.actual_item == "sword"):
-                    self.inventory.use_item()
-                    entity.take_damage()
-                    break
+    def attack(self, events):
+        if events.type == pygame.MOUSEBUTTONDOWN and events.button == 1:
+            for entity in self.entities:
+                    if entity.life:
+                        if self.hitbox.colliderect(entity.hitbox) and self.inventory.actual_item == "sword":
+                            self.inventory.use_item()
+                            entity.take_damage()
+                            break
 
 
 # * Fire balls' class
@@ -228,26 +241,35 @@ class Fire(Entities):
         self.speed = speed
         self.shot = self.sprites[shot_sprite]["shot"]
         self.player_state = player_state
+        self.world_x = x
+        self.world_y = y
+        self.cam_x = 0
+        self.cam_y = 0
 
     # * Update the fire ball
-    def update(self):
-        if self.player_state == "up_left":
-            self.hitbox.x -= self.speed
-            self.hitbox.y -= self.speed
-        elif self.player_state == "up_right":
-            self.hitbox.x += self.speed
-            self.hitbox.y -= self.speed
-        elif self.player_state == "down_left":
-            self.hitbox.x -= self.speed
-            self.hitbox.y += self.speed
-        elif self.player_state == "down_right":
-            self.hitbox.x += self.speed
-            self.hitbox.y += self.speed
+    def update(self, cam_x, cam_y):
+        directions = {
+            "up_right": (0, -self.speed),
+            "up_left":   (-self.speed, 0),
+            "down_right":  (self.speed, 0),
+            "down_left": (0, self.speed)
+        }
+
+        delta_x, delta_y = directions.get(self.player_state, (0, 0))
+        iso_x = delta_x - delta_y
+        iso_y = (delta_x + delta_y) / 2
+
+        self.world_x += iso_x
+        self.world_y += iso_y
+
+        self.hitbox.x = self.world_x - cam_x
+        self.hitbox.y = self.world_y - cam_y
 
     # * Draw the fire ball
     def draw(self, wn):
         if self.visible:
             wn.blit(self.shot, self.hitbox)
+            #pygame.draw.rect(wn, (255, 0, 0), self.hitbox, 4)
 
 
 # * Items' class
@@ -266,13 +288,34 @@ class Items(Entities):
         self.power = item_power
         self.durability = durability
         self.health = durability
+        self.tile_clmn = 0
+        self.tile_row = 0
+        self.depth = self.tile_clmn + self.tile_row
+        self.health_bar = False
+        self.cam_x = 0
+        self.cam_y = 0
+
+    def update(self, tile_w, tile_h, cam_x, cam_y):
+        if self.visible:
+            self.base_y = self.world_y + self.height
+            self.tile_clmn = round(
+                ((self.world_x / (tile_w / 2) + self.base_y / (tile_h / 2)) / 2), 2
+            )
+            self.tile_row = round(
+                ((self.base_y / (tile_h / 2) - self.world_x / (tile_w / 2)) / 2), 2
+            )
+
+            self.depth = self.tile_clmn + self.tile_row
+
+            self.cam_x = cam_x
+            self.cam_y = cam_y
 
     # * Draw the Items
-    def draw(self, wn, cam_x, cam_y):
+    def draw(self, wn):
         if self.visible:
             #pygame.draw.rect(wn, (255, 0, 0), self.hitbox, 4)
-            wn_x = self.world_x - cam_x
-            wn_y = self.world_y - cam_y
+            wn_x = self.world_x - self.cam_x
+            wn_y = self.world_y - self.cam_y
             wn.blit(self.item, (wn_x, wn_y))
             self.hitbox.x = wn_x
             self.hitbox.y = wn_y
@@ -308,8 +351,8 @@ class Animals(Entities):
             self.animal, "idle", self.sprites_dic
         )
 
-    def take_damage(self):
-        self.health -= 1
+    def take_damage(self, damage=1):
+        self.health -= damage
         if self.health <= 0:
             self.life = False
 

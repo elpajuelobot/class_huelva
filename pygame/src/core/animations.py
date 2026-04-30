@@ -50,6 +50,17 @@ def sprites_func_shot(shot_witdh, shot_height):
     return sprites
 
 
+# * Search a free space in the pool to draw the projectile in the window
+def projectils_pool(pool, x, y):
+    for shoot in pool:
+        if not shoot.visible:
+            shoot.world_x = x
+            shoot.world_y = y
+            shoot.visible = True
+            return shoot
+    return None
+
+
 # * Items' Sprites
 def sprites_func_items(item_width, item_height):
     sprites = {
