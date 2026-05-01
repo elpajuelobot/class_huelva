@@ -31,12 +31,15 @@ red = (255, 0, 0)
 white = (255, 255, 255)
 black = (0, 0, 0)
 purple = (114, 0, 194)
+grey_red = (115, 101, 101)
+red_dark = (255, 0, 100)
 
 # ? FPS
 f_size = 30
 f_type = "Arial"
-fps_pos = (10, 10)
+fps_pos = (width - 120, 10)
 fps_cap = 60
+show_fps = False
 
 # ? Player
 x_player = 400
@@ -44,6 +47,16 @@ y_player = 300
 width_player = 55
 height_player = 85
 speed_player = 3
+width_health_player = 250
+height_health_player = 30
+player_core_h = height_health_player - 5
+player_core_w = player_core_h
+player_health_x = 10
+player_health_y = 10
+water_attack_delay = 1500
+player_bubble_h = height_health_player - 5
+player_bubble_w = player_bubble_h
+regenerate_bubbles = 1000
 
 # ? Principal loop
 run = True
@@ -80,9 +93,9 @@ stag_height = 95
 soundtrack = pygame.mixer.music.load("src\data\music\Minecraft 2015 soundtrack.mp3")
 
 # ? Health
-# ! Animals
+# * Animals
 width_health = 50
 height_health = 5
-# ! Items(inventory)
+# * Items(inventory)
 width_health_invt = 40
 height_health_invt = 5
