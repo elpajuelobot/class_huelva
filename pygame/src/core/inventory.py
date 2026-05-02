@@ -4,7 +4,7 @@ from src.core.animations import sprites_func_items, items_pool
 from src.core.config import (
                             width, height, grey_dark, grey_light,
                             grey, grey_highlight, inventory_squares,
-                            squares_size, squares_padding, red, inventory_font,
+                            squares_size, squares_padding, inventory_font,
                             purple, white, width_health_invt, height_health_invt)
 import json
 

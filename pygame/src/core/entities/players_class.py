@@ -1,18 +1,10 @@
 # Imports
-import pygame
-from src.core.animations import (
-    sprites_func_player,
-    sprites_func_shot,
-    sprites_func_items,
-    sprites_func_animals
-)
+from src.core.entities.sprites_class import Entities
+from src.core.animations import sprites_func_player
 from src.core.config import (
     shot_width,
     shot_height,
     shot_cooldown,
-    lifetime,
-    width_health,
-    height_health,
     width_health_player,
     height_health_player,
     grey_red,
@@ -23,26 +15,8 @@ from src.core.config import (
     ISO_H,
     purple
 )
-import json
+import pygame
 import math
-
-
-# * Base class for all entities in the game (player, animals, items, projectiles)
-class Entities(pygame.sprite.Sprite):
-    def __init__(self, *groups, width, height, x, y):
-        super().__init__(*groups)
-        self.width = width
-        self.height = height
-        self.x = x
-        self.y = y
-        # * Collision rectangle, starts at spawn position
-        self.hitbox = pygame.Rect(
-            self.x, self.y,
-            self.width, self.height
-        )
-        self.show_hitbox = False  # * Toggle with F3 to debug collisions
-        self.visible = True
-        self.health_bar = True  # * Whether to draw the health bar above this entity
 
 
 class Player(Entities):
@@ -105,7 +79,7 @@ class Player(Entities):
         return world.get_terrain(clmn, row)
 
     # * Update function for move the player
-    def update(self, keys_pressed, items, cam_x, cam_y, entities, world):
+    def update(self, keys_pressed, items, cam_x, cam_y, entities, world, Fire):
         self.entities = entities
         delta_x = 0
         delta_y = 0
@@ -113,10 +87,16 @@ class Player(Entities):
         self.base_y = self.world_y + self.height * 0.5
         # * Horizontal offset for the lateral terrain sample points (~30% of sprite width)
         offset = self.width * 0.3
-        center_point = (self.world_x,          self.base_y)
+        center_point = (self.world_x, self.base_y)
         left_point   = (self.world_x - offset, self.base_y)
         right_point  = (self.world_x + offset, self.base_y)
         self.is_move = False
+        self.pickup_hitbox = pygame.Rect(
+            (self.world_x - cam_x) - offset,
+            (self.base_y - cam_y) - (ISO_H // 2),
+            offset * 2,
+            ISO_H // 2
+        )
 
         # * Sample terrain at three points and vote: 2 out of 3 water → player is in water
         terrains = [
@@ -174,6 +154,7 @@ class Player(Entities):
             self.oxigen = True
             self.speed = 3
 
+        # * Apply isometric movement
         self.world_x += iso_x
         self.world_y += iso_y
 
@@ -240,7 +221,7 @@ class Player(Entities):
                     and
                     current_time > item.pickup_delay  # * Prevents picking up items immediately after dropping them
                     and
-                    self.hitbox.colliderect(item.hitbox)):
+                    self.pickup_hitbox.colliderect(item.hitbox)):
                 if self.inventory.put_images(item.name, item.durability, item.health):
                     item.visible = False
 
@@ -248,6 +229,7 @@ class Player(Entities):
     def draw(self, wn):
         if self.show_hitbox:
             pygame.draw.rect(wn, (255, 0, 0), self.hitbox, 4)
+            pygame.draw.rect(wn, (0, 255, 0), self.pickup_hitbox, 4)
 
         # * Always draw the player centered on screen (camera follows player)
         wn_x = self.wn_width  // 2 - self.width  // 2
@@ -279,10 +261,13 @@ class Player(Entities):
         if events.type == pygame.MOUSEBUTTONDOWN and events.button == 1:
             for entity in self.entities:
                     if entity.life:
-                        if self.hitbox.colliderect(entity.hitbox) and self.inventory.actual_item == "sword":
-                            self.inventory.use_item()
-                            entity.take_damage()
-                            break
+                        if self.hitbox.colliderect(entity.hitbox):
+                            if self.inventory.actual_item == "sword":
+                                self.inventory.use_item()
+                                entity.take_damage()
+                                break
+                            else:
+                                entity.take_damage(damage=0.25)
 
     # * Draw the player health bar at the given screen position
     def barra_healt(self, wn, x, y):
@@ -318,176 +303,3 @@ class Player(Entities):
                     self.last_bubble_time = current_time_bubble
         else:
             self.bubbles = 0  # * Clamp to avoid negative bubbles
-
-
-# * Fire balls' class
-class Fire(Entities):
-    # * __init__
-    def __init__(self, *groups, width, height, x, y, speed, shot_sprite, player_state):
-        super().__init__(*groups, width=width, height=height, x=x, y=y)
-        self.sprites = sprites_func_shot(self.width, self.height)
-        self.speed = speed
-        self.shot = self.sprites[shot_sprite]["shot"]  # * Projectile sprite image
-        self.player_state = player_state  # * Direction inherited from the player at the moment of firing
-        self.world_x = x
-        self.world_y = y
-        self.cam_x = 0
-        self.cam_y = 0
-
-    # * Move the projectile each frame and update its screen-space hitbox
-    def update(self, cam_x, cam_y):
-        # * Map player state to a screen-space delta, then convert to isometric movement
-        directions = {
-            "up_right":   (0,          -self.speed),
-            "up_left":    (-self.speed, 0),
-            "down_right": (self.speed,  0),
-            "down_left":  (0,           self.speed)
-        }
-
-        delta_x, delta_y = directions.get(self.player_state, (0, 0))
-        iso_x = delta_x - delta_y
-        iso_y = (delta_x + delta_y) / 2
-
-        self.world_x += iso_x
-        self.world_y += iso_y
-
-        # * Convert world position to screen position using the camera offset
-        self.hitbox.x = self.world_x - cam_x
-        self.hitbox.y = self.world_y - cam_y
-
-    # * Draw the fire ball
-    def draw(self, wn):
-        if self.visible:
-            wn.blit(self.shot, self.hitbox)
-            if self.show_hitbox:
-                pygame.draw.rect(wn, (255, 0, 0), self.hitbox, 4)
-
-
-# * Items' class
-class Items(Entities):
-    # * __init__
-    def __init__(self, *groups, width, height, x, y, name_item, durability, item_power=None):
-        super().__init__(*groups, width=width, height=height, x=x, y=y)
-        self.sprites = sprites_func_items(self.width, self.height)
-        self.name = name_item
-        self.item = self.sprites["item_sprites"][self.name]  # * Item sprite image
-        self.world_x = x
-        self.world_y = y
-        self.spawn_time = 0  # * Tick when this item became visible (used for lifetime expiry)
-        self.lifetime = lifetime # * 60*10^4ms (1 min) — item disappears after this
-        self.pickup_delay = 0  # * Tick before which the player cannot pick up this item
-        self.power = item_power  # * Optional stat bonus (reserved for future use)
-        self.durability = durability  # * Max uses before the item breaks
-        self.health = durability  # * Current uses remaining
-        self.tile_clmn = 0
-        self.tile_row = 0
-        self.depth = self.tile_clmn + self.tile_row  # * Draw order
-        self.health_bar = False  # * Items don't show a health bar in the world
-        self.cam_x = 0
-        self.cam_y = 0
-
-    # * Recalculate tile position and depth each frame (items can be dropped anywhere)
-    def update(self, cam_x, cam_y):
-        if self.visible:
-            self.base_y = self.world_y + self.height * 0.5
-            self.tile_clmn = math.floor((self.world_x / (ISO_W / 2) + self.base_y / (ISO_H / 2)) / 2)
-            self.tile_row  = math.floor((self.base_y / (ISO_H / 2) - self.world_x / (ISO_W / 2)) / 2)
-
-            self.depth = self.tile_clmn + self.tile_row
-
-            self.cam_x = cam_x
-            self.cam_y = cam_y
-
-    # * Draw the Items
-    def draw(self, wn):
-        if self.visible:
-            if self.show_hitbox:
-                pygame.draw.rect(wn, (255, 0, 0), self.hitbox, 4)
-            wn_x = self.world_x - self.cam_x
-            wn_y = self.world_y - self.cam_y
-            wn.blit(self.item, (wn_x, wn_y))
-            # * Keep hitbox in sync with screen position for pickup collision detection
-            self.hitbox.x = wn_x
-            self.hitbox.y = wn_y
-
-
-# * Animals' class
-class Animals(Entities):
-    def __init__(self, width, height, x, y, speed, frames, animal, visible=True, health=3):
-        super().__init__(width=width, height=height, x=x, y=y)
-        self.speed = speed
-        self.frames = frames  # * Total number of animation frames in the sprite sheet
-        self.animal = animal  # * Animal type key, used to look up sprites and JSON paths
-        self.sprites_dic = {"animal_sprites": {}}  # * Populated by load_sprites()
-        self.anim_count = 0
-        self.health = health
-        self.initial_health = health
-        self.life = True  # * False when health reaches 0; triggers hide on next update
-        self.tile_clmn = 0
-        self.tile_row = 0
-        self.depth = self.tile_clmn + self.tile_row
-        self.cam_x = 0
-        self.cam_y = 0
-        self.world_x = self.x
-        self.world_y = self.y
-        self.visible = visible
-
-    # * Load the animal's sprite sheet from the JSON path registry
-    def load_sprites(self):
-        with open("src\\data\\json\\animals_path.json", "r", encoding="utf-8") as data:
-            self.animals_paths = json.load(data)
-        sprites_func_animals(
-            self.animals_paths[self.animal]["idle"]["down"],
-            self.frames, "down", self.width, self.height,
-            self.animal, "idle", self.sprites_dic
-        )
-
-    # * Reduce health; mark as dead when it hits zero
-    def take_damage(self, damage=1):
-        self.health -= damage
-        if self.health <= 0:
-            self.life = False
-
-    # * Update tile position, depth and camera each frame
-    def update(self, cam_x, cam_y):
-        if not self.life:
-            self.visible = False  # * Hide the animal one frame after death
-        if self.visible:
-            self.base_y = self.world_y + self.height * 0.5
-            self.tile_clmn = math.floor((self.world_x / (ISO_W / 2) + self.base_y / (ISO_H / 2)) / 2)
-            self.tile_row  = math.floor((self.base_y / (ISO_H / 2) - self.world_x / (ISO_W / 2)) / 2)
-
-            self.depth = self.tile_clmn + self.tile_row
-
-            self.cam_x = cam_x
-            self.cam_y = cam_y
-
-    def draw(self, wn):
-        if self.visible:
-            if self.show_hitbox:
-                pygame.draw.rect(wn, (255, 0, 0), self.hitbox, 4)
-            wn_x = self.world_x - self.cam_x
-            wn_y = self.world_y - self.cam_y
-            frames = self.sprites_dic["animal_sprites"][self.animal]["idle"]["down"]
-            # * Advance one animation frame every 5 game ticks
-            current_frame = frames[self.anim_count // 5 % len(frames)]
-            wn.blit(current_frame, (wn_x, wn_y))
-            self.anim_count += 1
-
-            # * Reset counter once a full animation cycle completes
-            if self.anim_count >= len(frames) * 5:
-                self.anim_count = 0
-
-            self.hitbox.x = wn_x
-            self.hitbox.y = wn_y
-
-    # * Draw the animal's health bar directly above it in world space
-    def barra_healt(self, wn, x, y):
-        if self.health > 0:
-            health_x = x - self.cam_x
-            health_y = y - self.cam_y
-            calculo_barra = int((self.health / self.initial_health) * width_health)
-            rectangulo = pygame.Rect(health_x, health_y, calculo_barra, height_health)
-            pygame.draw.rect(wn, (255, 0, 100), rectangulo)
-        else:
-            self.health = 0  # * Clamp to avoid negative health

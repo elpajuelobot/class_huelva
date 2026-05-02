@@ -6,8 +6,11 @@ from src.core.config import (
                         height_player, run, width_item, height_item, speed_player,
                         TILE_W, TILE_H, last_chunk_clmn, last_chunk_row, CHUNK,
                         MAX_ANIMALS_IN_WINDOWS, stag_width, stag_height, show_fps,
-                        player_health_x, player_health_y)
-from src.core.player import Player, Items, Animals
+                        player_health_x, player_health_y, soundtrack_path)
+from src.core.entities.players_class import Player
+from src.core.entities.items_class import Items
+from src.core.entities.animals_class import Animals
+from src.core.entities.proyectiles_class import Fire
 from src.core.animations import items_pool, animals_pool
 from src.core.world_generator import World_generator
 from src.core.inventory import Inventory
@@ -82,8 +85,9 @@ clock = pygame.time.Clock()
 # * Font
 font = pygame.font.SysFont(f_type, f_size)
 
-# * Play music
-#pygame.mixer.music.play(-1)
+# * Load and play music
+pygame.mixer.music.load(soundtrack_path)
+pygame.mixer.music.play(-1)
 
 while run:
     # * Keys Control — sampled once per frame and passed to whoever needs them
@@ -124,7 +128,7 @@ while run:
     # * Pre-render FPS text (blit happens later, only if show_fps is True)
     fps_text = font.render(f"FPS: {int(clock.get_fps())}", True, fps_f_color)
 
-    hero.update(keys_pressed, pool_items, cam_x, cam_y, entities_list, world)
+    hero.update(keys_pressed, pool_items, cam_x, cam_y, entities_list, world, Fire)
 
     # * Sort sprites back-to-front by isometric depth before drawing
     sprites_list.sort(key=lambda x: x.depth)
