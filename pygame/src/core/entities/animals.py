@@ -1,6 +1,6 @@
 from src.core.entities.sprites_class import Entities
-from src.core.config import ISO_H, ISO_W, width_health, height_health
-from src.core.animations import sprites_func_animals
+from src.core.settings.config import ISO_H, ISO_W, width_health, height_health
+from src.core.system.animations.animations import sprites_func_animals
 import pygame
 import json
 import math

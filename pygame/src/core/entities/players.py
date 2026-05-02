@@ -1,7 +1,7 @@
 # Imports
 from src.core.entities.sprites_class import Entities
-from src.core.animations import sprites_func_player
-from src.core.config import (
+from src.core.system.animations.animations import sprites_func_player
+from core.settings.config import (
     shot_width,
     shot_height,
     shot_cooldown,

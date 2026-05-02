@@ -1,8 +1,8 @@
 import pygame
 from src.core.entities.sprites_class import Entities
 import math
-from src.core.config import lifetime, ISO_H, ISO_W
-from src.core.animations import sprites_func_items
+from src.core.settings.config import lifetime, ISO_H, ISO_W
+from src.core.system.animations.animations import sprites_func_items
 
 # * Items' class
 class Items(Entities):

@@ -1,6 +1,6 @@
 import pygame
 from src.core.entities.sprites_class import Entities
-from src.core.animations import sprites_func_shot
+from src.core.system.animations.animations import sprites_func_shot
 
 # * Fire balls' class
 class Fire(Entities):

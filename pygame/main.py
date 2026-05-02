@@ -1,19 +1,19 @@
 # imports
 import pygame
-from src.core.config import (
+from src.core.settings.config import (
                         height, width, f_size, f_type, fps_pos, MAX_ITEMS_IN_WINDOWS,
                         fps_cap, fps_f_color, x_player, y_player, width_player,
                         height_player, run, width_item, height_item, speed_player,
                         TILE_W, TILE_H, last_chunk_clmn, last_chunk_row, CHUNK,
                         MAX_ANIMALS_IN_WINDOWS, stag_width, stag_height, show_fps,
                         player_health_x, player_health_y, soundtrack_path)
-from src.core.entities.players_class import Player
-from src.core.entities.items_class import Items
-from src.core.entities.animals_class import Animals
-from src.core.entities.proyectiles_class import Fire
-from src.core.animations import items_pool, animals_pool
-from src.core.world_generator import World_generator
-from src.core.inventory import Inventory
+from src.core.entities.players import Player
+from src.core.entities.items import Items
+from src.core.entities.animals import Animals
+from src.core.entities.proyectiles import Fire
+from src.core.system.animations.animations import items_pool, animals_pool
+from src.core.system.world.world_generator import World_generator
+from src.core.system.inventory.inventory import Inventory
 
 # * Initialize Pygame
 pygame.init()

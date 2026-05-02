@@ -1,6 +1,6 @@
 # Imports
 from pygame import image, transform, Rect, time
-from src.core.config import player_core_w, player_core_h
+from core.settings.config import player_core_w, player_core_h
 
 
 # * Load and slice the player sprite sheet into directional move/idle animations

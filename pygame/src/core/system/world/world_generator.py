@@ -1,6 +1,6 @@
 import pygame
 from opensimplex import OpenSimplex
-from src.core.config import (
+from core.settings.config import (
     CHUNK, CHUNK_DISTANCE,
     ISO_W, ISO_H
 )

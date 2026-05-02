@@ -1,7 +1,7 @@
 # Imports
 import pygame
-from src.core.animations import sprites_func_items, items_pool
-from src.core.config import (
+from src.core.system.animations.animations import sprites_func_items, items_pool
+from core.settings.config import (
                             width, height, grey_dark, grey_light,
                             grey, grey_highlight, inventory_squares,
                             squares_size, squares_padding, inventory_font,
