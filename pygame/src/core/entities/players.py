@@ -1,7 +1,7 @@
 # Imports
 from src.core.entities.sprites_class import Entities
 from src.core.system.animations.animations import sprites_func_player
-from core.settings.config import (
+from src.core.settings.config import (
     shot_width,
     shot_height,
     shot_cooldown,
@@ -154,9 +154,26 @@ class Player(Entities):
             self.oxigen = True
             self.speed = 3
 
+        # ? Stop player when colision with an animal
+        future_hitbox_x = self.pickup_hitbox.move(iso_x, 0)
+        future_hitbox_y = self.pickup_hitbox.move(0, iso_y)
+
+        move_x = True
+        move_y = True
+
+        for entity in self.entities:
+            if hasattr(entity, 'life') and entity.life:
+                if future_hitbox_x.colliderect(entity.pickup_hitbox):
+                    move_x = False
+
+                if future_hitbox_y.colliderect(entity.pickup_hitbox):
+                    move_y = False
+
         # * Apply isometric movement
-        self.world_x += iso_x
-        self.world_y += iso_y
+        if move_x:
+            self.world_x += iso_x
+        if move_y:
+            self.world_y += iso_y
 
         # * Subtract 0.5 so the player renders just in front of the tile it stands on
         self.depth = (self.tile_clmn + self.tile_row) - 0.5

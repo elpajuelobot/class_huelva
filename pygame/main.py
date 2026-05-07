@@ -62,12 +62,12 @@ items_pool(pool=pool_items, name="crystal", x=500, y=123, health=1, durability=1
 
 # * Animal pool — same pattern as items: fixed-size pool, slots activated on demand
 pool_animals = [
-    Animals(width=0, height=0, x=0, y=0, speed=0, frames=0, animal="stag", visible=False)
+    Animals(width=0, height=0, x=0, y=0, frames=0, animal="stag", world=world, visible=False)
     for _ in range(MAX_ANIMALS_IN_WINDOWS)
 ]
 
-animals_pool(pool_animals, "stag", 310, 413, stag_width, stag_height, 2, 24)
-animals_pool(pool_animals, "stag", 110, 113, stag_width, stag_height, 2, 24)
+animals_pool(pool_animals, "stag", 310, 413, stag_width, stag_height, 24)
+animals_pool(pool_animals, "stag", 110, 113, stag_width, stag_height, 24)
 
 # TODO: IMPORTANTE. METER EN ESTA LISTA TODAS LAS ENTIDADES CREADAS
 # * Snapshot of active entities/items at startup — these lists are static after init,
@@ -87,7 +87,7 @@ font = pygame.font.SysFont(f_type, f_size)
 
 # * Load and play music
 pygame.mixer.music.load(soundtrack_path)
-pygame.mixer.music.play(-1)
+#pygame.mixer.music.play(-1)
 
 while run:
     # * Keys Control — sampled once per frame and passed to whoever needs them
@@ -128,6 +128,11 @@ while run:
     # * Pre-render FPS text (blit happens later, only if show_fps is True)
     fps_text = font.render(f"FPS: {int(clock.get_fps())}", True, fps_f_color)
 
+    # * Update the animals
+    for entity in entities_list:
+        entity.update(cam_x, cam_y, hero.world_x, hero.world_y)
+        entity.barra_healt(wn, entity.world_x, entity.world_y)  # * Health bar drawn in world space above the entity
+
     hero.update(keys_pressed, pool_items, cam_x, cam_y, entities_list, world, Fire)
 
     # * Sort sprites back-to-front by isometric depth before drawing
@@ -135,9 +140,6 @@ while run:
     for entity in sprites_list:
         entity.draw(wn)
 
-    for entity in entities_list:
-        entity.update(cam_x, cam_y)
-        entity.barra_healt(wn, entity.world_x, entity.world_y)  # * Health bar drawn in world space above the entity
 
     for item in pool_items:
         item.update(cam_x, cam_y)  # * Recalculate screen position; draw() is handled via sprites_list

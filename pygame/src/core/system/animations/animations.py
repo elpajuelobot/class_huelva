@@ -1,6 +1,6 @@
 # Imports
 from pygame import image, transform, Rect, time
-from core.settings.config import player_core_w, player_core_h
+from src.core.settings.config import player_core_w, player_core_h
 
 
 # * Load and slice the player sprite sheet into directional move/idle animations
@@ -163,7 +163,7 @@ def sprites_func_animals(path, num_sprites, direction, width, height, animal, st
 
 
 # * Search a free slot in the animal pool, load its sprites and place it in the world
-def animals_pool(pool, name, x, y, width, height, speed, frames):
+def animals_pool(pool, name, x, y, width, height, frames):
     for animal in pool:
         if not animal.visible:
             animal.animal = name
@@ -173,7 +173,6 @@ def animals_pool(pool, name, x, y, width, height, speed, frames):
             animal.height = height
             animal.hitbox.width = width
             animal.hitbox.height = height
-            animal.speed = speed
             animal.frames = frames
             animal.sprites_dic = {"animal_sprites": {}}  # * Reset before loading new sprites
             animal.load_sprites()
