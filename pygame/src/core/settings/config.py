@@ -17,10 +17,11 @@ CHUNK = 16
 CHUNK_DISTANCE = 3
 last_chunk_clmn = -999
 last_chunk_row = -999
+minimum_sed = 111111111111111111111111
+maximum_sed = 999999999999999999999999
 
 # ? Colors
 bg_color = (128, 0, 128)
-fps_f_color = (255, 255, 255)
 orange = (255, 102, 3)
 grey_dark = (80, 80, 80)
 grey_light = (198, 198, 198)
@@ -38,7 +39,7 @@ f_size = 30
 f_type = "Arial"
 fps_pos = (width - 120, 10)
 fps_cap = 60
-show_fps = False
+show_data = False
 
 # ? Player
 x_player = 400
@@ -98,3 +99,6 @@ height_health = 5
 # * Items(inventory)
 width_health_invt = 40
 height_health_invt = 5
+
+# ? SED position
+sed_pos = (10, player_health_y + height_health_player + player_bubble_h + 10)

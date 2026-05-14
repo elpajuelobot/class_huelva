@@ -1,12 +1,14 @@
 # imports
 import pygame
+import random
 from src.core.settings.config import (
                         height, width, f_size, f_type, fps_pos, MAX_ITEMS_IN_WINDOWS,
-                        fps_cap, fps_f_color, x_player, y_player, width_player,
+                        fps_cap, white, x_player, y_player, width_player,
                         height_player, run, width_item, height_item, speed_player,
                         TILE_W, TILE_H, last_chunk_clmn, last_chunk_row, CHUNK,
-                        MAX_ANIMALS_IN_WINDOWS, stag_width, stag_height, show_fps,
-                        player_health_x, player_health_y, soundtrack_path)
+                        MAX_ANIMALS_IN_WINDOWS, stag_width, stag_height, show_data,
+                        player_health_x, player_health_y, soundtrack_path, minimum_sed,
+                        maximum_sed, sed_pos)
 from src.core.entities.players import Player
 from src.core.entities.items import Items
 from src.core.entities.animals import Animals
@@ -29,8 +31,8 @@ gride = pygame.transform.scale(
     (width, height)
 ).convert_alpha()
 
-# * World generator — seed determines the procedural map (alternative seed: 65723874625)
-world = World_generator(sed=821365812, tile_w=TILE_W, tile_h=TILE_H)
+# * World generator — seed determines the procedural map (alternative seed: 65723874625)821365812
+world = World_generator(sed=random.randint(minimum_sed, maximum_sed), tile_w=TILE_W, tile_h=TILE_H)
 world.update_chunks(0, 0)  # * Queue the chunks around the spawn tile before the first frame
 
 # * Inventory
@@ -85,6 +87,9 @@ clock = pygame.time.Clock()
 # * Font
 font = pygame.font.SysFont(f_type, f_size)
 
+# * Save world sed
+sed_text = font.render(f"SED: {world.sed}", True, white)
+
 # * Load and play music
 pygame.mixer.music.load(soundtrack_path)
 #pygame.mixer.music.play(-1)
@@ -100,7 +105,7 @@ while run:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_F3:
                 # * F3 toggles FPS counter and hitbox debug overlay for all sprites
-                show_fps = not show_fps
+                show_data = not show_data
                 for entity in sprites_list:
                     entity.show_hitbox = not entity.show_hitbox
 
@@ -125,8 +130,8 @@ while run:
 
     world.draw(wn, cam_x, cam_y)
 
-    # * Pre-render FPS text (blit happens later, only if show_fps is True)
-    fps_text = font.render(f"FPS: {int(clock.get_fps())}", True, fps_f_color)
+    # * Pre-render FPS text (blit happens later, only if show_data is True)
+    fps_text = font.render(f"FPS: {int(clock.get_fps())}", True, white)
 
     # * Update the animals
     for entity in entities_list:
@@ -156,8 +161,9 @@ while run:
     inventory.draw(wn)  # * Hotbar drawn on top of everything else
 
     # * Write the FPS in the window
-    if show_fps:
+    if show_data:
         wn.blit(fps_text, fps_pos)
+        wn.blit(sed_text, sed_pos)
 
     pygame.display.flip()  # * Push the completed frame to the screen
     clock.tick(fps_cap)  # * Cap framerate and yield CPU time
