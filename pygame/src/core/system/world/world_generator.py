@@ -15,6 +15,7 @@ class World_generator:
         self.scale = scale  # * Noise sampling frequency: lower = smoother/larger terrain features
         self.chunks = {}  # * Dict of loaded chunks: {(col, row): {"data": [...], "surface": Surface}}
         self.chunk_queue = []  # * FIFO queue of chunk coords pending generation (processed one per frame)
+        self.spawned_chunks = []
 
         # * Load a tile image by index, scale it to match the configured tile size
         def load_tile(index):
@@ -106,7 +107,7 @@ class World_generator:
         return {"data": chunk_data, "surface": chunk_surface}
 
     # * Add newly visible chunks to the queue and unload chunks that are too far away
-    def update_chunks(self, player_tile_clmn, player_tile_row):
+    def update_chunks(self, player_tile_clmn, player_tile_row, animals_pool=None):
         player_chunk_clmn = player_tile_clmn // CHUNK
         player_chunk_row  = player_tile_row  // CHUNK
 
@@ -128,12 +129,21 @@ class World_generator:
                 to_unload.append((clmn, row))
         for key in to_unload:
             del self.chunks[key]
+            if key in self.spawned_chunks:
+                self.spawned_chunks.remove(key)
+            if animals_pool:
+                for animal in animals_pool:
+                    if animal.chunk == key:
+                        animal.visible = False
+                        animal.chunk = None
 
     # * Generate one chunk per frame from the queue to avoid frame spikes
     def process_queue(self):
         if len(self.chunk_queue) > 0:
             clmn, row = self.chunk_queue.pop(0)
             self.chunks[(clmn, row)] = self.generate_chunk(clmn, row)
+            return clmn, row
+        return None
 
     # * Return the correct tile image for a non-water cell based on its noise value
     def get_tiles(self, value, global_clmn, global_row):
@@ -190,3 +200,25 @@ class World_generator:
             sy = world_y - cam_y - self.tile_h
 
             wn.blit(chunk["surface"], (sx, sy))
+
+    # * Spawner
+    def get_spawn_position(self, chunk_clmn, chunk_row, amount):
+        winners = []
+        if (chunk_clmn, chunk_row) in self.spawned_chunks:
+            return winners
+        candidates = []
+        for row in range(CHUNK):
+            for clmn in range(CHUNK):
+                global_row = chunk_row * CHUNK + row
+                global_clmn = chunk_clmn * CHUNK + clmn
+
+                terrain = self.get_terrain(global_clmn, global_row)
+
+                if terrain != "water":
+                    world_x = (global_clmn - global_row) * (ISO_W // 2)
+                    world_y = (global_clmn + global_row) * (ISO_H // 2)
+                    candidates.append((world_x, world_y))
+
+        winners = (random.sample(candidates, min(amount, len(candidates))))
+        self.spawned_chunks.append((chunk_clmn, chunk_row))
+        return winners

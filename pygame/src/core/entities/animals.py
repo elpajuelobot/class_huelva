@@ -32,6 +32,8 @@ class Animals(Entities):
         self.flee_speed = self.behavior["flee_speed"]
         self.detect_radius = self.behavior["detect_radius"]
         self.flee_radius = self.behavior["flee_radius"]
+        self.pickup_hitbox = pygame.Rect(0, 0, 0, 0)
+        self.chunk = None
 
         self.animal = animal  # * Animal type key, used to look up sprites and JSON paths
         self.sprites_dic = {"animal_sprites": {}}  # * Populated by load_sprites()
@@ -48,7 +50,7 @@ class Animals(Entities):
         self.world_y = self.y
         self.visible = visible
         self.world = world
-        self.direction = "down"
+        self.direction = "SE"
 
         # * FMS
         self.state = AnimalState.IDLE
@@ -63,14 +65,22 @@ class Animals(Entities):
 
     # * Move to a random position
     def _pick_wander_target(self):
+        iso_vectors = [
+            (1, 0.5),  # ? SE
+            (-1, 0.5),  # ? SW
+            (-1, -0.5),  # ? NW
+            (1, -0.5)  # ? NE
+        ]
         for _ in range(10):
-            angle = random.uniform(0, 2 * math.pi)
-            dist  = random.uniform(50, self.wander_radius)
-            tx = self.world_x + math.cos(angle) * dist
-            ty = self.world_y + math.sin(angle) * dist
+            dir_x, dir_y = random.choice(iso_vectors)
+            dist = random.uniform(50, self.wander_radius)
+            tx = self.world_x + (dir_x * dist)
+            ty = self.world_y + (dir_y * dist)
+
             if self._is_walkable(tx, ty):
                 return tx, ty
         return self.world_x, self.world_y
+
 
     # * Ask if this tile is grass
     def _is_walkable(self, wx, wy):
@@ -84,24 +94,29 @@ class Animals(Entities):
         dy = self.world_y - other_y
         return math.sqrt(dx * dx + dy * dy)
 
+    def _get_iso_direction(self, dx, dy):
+        iso_x = dx - dy
+        iso_y = (dx + dy) / 2
+
+        angle = math.degrees(math.atan2(iso_y, iso_x))
+        if 0 <= angle < 90:
+            return "SE"
+        elif 90 <= angle < 180:
+            return "SW"
+        elif -180 <= angle < -90:
+            return "NW"
+        else:
+            return "NE"
+
     def _move_towards(self, tx, ty, speed):
         dx = tx - self.world_x
         dy = ty - self.world_y
-        if abs(dx) > abs(dy):
-            if dx > 0:
-                self.direction = "right"
-            else:
-                self.direction = "left"
-        else:
-            if dy > 0:
-                self.direction = "down"
-            else:
-                self.direction = "up"
         dist = math.sqrt(dx * dx + dy * dy)
         if dist < speed:
             self.world_x = tx
             self.world_y = ty
             return True
+        self.direction = self._get_iso_direction(dx, dy)
         self.world_x += (dx / dist) * speed
         self.world_y += (dy / dist) * speed
         return False
@@ -109,21 +124,34 @@ class Animals(Entities):
     def _move_away_from(self, fx, fy, speed):
         dx = self.world_x - fx
         dy = self.world_y - fy
+
+        iso_vectors = [
+            (1, 0.5),  # ? SE
+            (-1, 0.5),  # ? SW
+            (-1, -0.5),  # ? NW
+            (1, -0.5)  # ? NE
+        ]
+
         dist = math.sqrt(dx * dx + dy * dy) or 1
         nx = dx / dist
         ny = dy / dist
-        if abs(nx) > abs(ny):
-            if nx > 0:
-                self.direction = "right"
-            else:
-                self.direction = "left"
-        else:
-            if ny > 0:
-                self.direction = "down"
-            else:
-                self.direction = "up"
-        next_x = self.world_x + nx * speed
-        next_y = self.world_y + ny * speed
+        best_vector = iso_vectors[0]
+        max_dot = -float('inf')
+
+        for vx, vy in iso_vectors:
+            v_dist = math.sqrt(vx * vx + vy * vy)
+            nvx = vx / v_dist
+            nvy = vy / v_dist
+
+            dot = (nx * nvx) + (ny * nvy)
+            if dot > max_dot:
+                max_dot = dot
+                best_vector = (nvx, nvy)
+
+        self.direction = self._get_iso_direction(best_vector[0], best_vector[1])
+        next_x = self.world_x + best_vector[0] * speed
+        next_y = self.world_y + best_vector[1] * speed
+
         if self._is_walkable(next_x, next_y):
             self.world_x = next_x
             self.world_y = next_y
@@ -198,6 +226,7 @@ class Animals(Entities):
         self.health -= damage
         if self.health <= 0:
             self.life = False
+            self.visible = False
 
     # * Update tile position, depth and camera each frame
     def update(self, cam_x, cam_y, player_x, player_y):

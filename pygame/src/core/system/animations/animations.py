@@ -143,7 +143,7 @@ def sprites_func_animals(path, num_sprites, direction, width, height, animal, st
     cell_width  = sheet_width / num_sprites
     cell_height = sheet_height
 
-    valid_directions = ["right", "up", "down", "left"]
+    valid_directions = ["SE", "NE", "SW", "NW"]
     if direction not in valid_directions:
         raise ValueError(f"Dirección '{direction}' no válida. Usa: {valid_directions}")
 

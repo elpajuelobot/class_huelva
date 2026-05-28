@@ -1,44 +1,44 @@
 {
     "stag": {
         "idle": {
-            "down": [
+            "SE": [
                 "src\\data\\img\\animals\\stag\\Idle\\SE_idle.png", 24
             ],
-            "up": [
+            "NW": [
                 "src\\data\\img\\animals\\stag\\Idle\\NW_idle.png", 24
             ],
-            "left": [
+            "SW": [
                 "src\\data\\img\\animals\\stag\\Idle\\SW_idle.png", 24
             ],
-            "right": [
+            "NE": [
                 "src\\data\\img\\animals\\stag\\Idle\\NE_idle.png", 24
             ]
         },
         "run": {
-            "down": [
+            "SE": [
                 "src\\data\\img\\animals\\stag\\Run\\SE_run.png", 10
             ],
-            "up": [
+            "NW": [
                 "src\\data\\img\\animals\\stag\\Run\\NW_run.png", 10
             ],
-            "left": [
+            "SW": [
                 "src\\data\\img\\animals\\stag\\Run\\SW_run.png", 10
             ],
-            "right": [
+            "NE": [
                 "src\\data\\img\\animals\\stag\\Run\\NE_run.png", 10
             ]
         },
         "walk": {
-            "down": [
+            "SE": [
                 "src\\data\\img\\animals\\stag\\Walk\\SE_walk.png", 11
             ],
-            "up": [
+            "NW": [
                 "src\\data\\img\\animals\\stag\\Walk\\NW_walk.png", 11
             ],
-            "left": [
+            "SW": [
                 "src\\data\\img\\animals\\stag\\Walk\\SW_walk.png", 11
             ],
-            "right": [
+            "NE": [
                 "src\\data\\img\\animals\\stag\\Walk\\NE_walk.png", 11
             ]
         }

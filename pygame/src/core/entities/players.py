@@ -162,12 +162,13 @@ class Player(Entities):
         move_y = True
 
         for entity in self.entities:
-            if hasattr(entity, 'life') and entity.life:
-                if future_hitbox_x.colliderect(entity.pickup_hitbox):
-                    move_x = False
+            if entity is not None:
+                if hasattr(entity, 'life') and entity.life:
+                    if future_hitbox_x.colliderect(entity.pickup_hitbox):
+                        move_x = False
 
-                if future_hitbox_y.colliderect(entity.pickup_hitbox):
-                    move_y = False
+                    if future_hitbox_y.colliderect(entity.pickup_hitbox):
+                        move_y = False
 
         # * Apply isometric movement
         if move_x:

@@ -16,6 +16,7 @@ from src.core.entities.proyectiles import Fire
 from src.core.system.animations.animations import items_pool, animals_pool
 from src.core.system.world.world_generator import World_generator
 from src.core.system.inventory.inventory import Inventory
+from src.core.entities.spawn_manager import SpawnManager
 
 # * Initialize Pygame
 pygame.init()
@@ -68,13 +69,13 @@ pool_animals = [
     for _ in range(MAX_ANIMALS_IN_WINDOWS)
 ]
 
-animals_pool(pool_animals, "stag", 310, 413, stag_width, stag_height, 24)
-animals_pool(pool_animals, "stag", 110, 113, stag_width, stag_height, 24)
+# * Spawner
+spawner = SpawnManager(animals_pool, world)
 
 # TODO: IMPORTANTE. METER EN ESTA LISTA TODAS LAS ENTIDADES CREADAS
 # * Snapshot of active entities/items at startup — these lists are static after init,
 # * so newly spawned entities won't be added automatically; that's the TODO above
-entities_list = [e for e in pool_animals if e.visible]
+entities_list = pool_animals
 items_list = [e for e in pool_items if e.visible]
 players_list = [hero]
 
@@ -116,15 +117,18 @@ while run:
     cam_x = hero.world_x - width  // 2
     cam_y = hero.world_y - height // 2
 
-    world.process_queue()  # * Generate one pending chunk per frame
     wn.blit(gride, (0, 0))  # * Draw the grid overlay first (bottommost layer)
+    result = world.process_queue()  # * Generate one pending chunk per frame
+    if result:
+        chunk_clmn, chunk_row = result
+        spawner.create_animals(pool_animals, chunk_clmn, chunk_row, "stag", stag_width, stag_height, 24, 4)
 
     # * Check if the player has crossed into a new chunk and trigger a chunk update if so
     current_chunk_clmn = round(hero.tile_clmn) // CHUNK
     current_chunk_row  = round(hero.tile_row)  // CHUNK
 
     if current_chunk_clmn != last_chunk_clmn or current_chunk_row != last_chunk_row:
-        world.update_chunks(round(hero.tile_clmn), round(hero.tile_row))
+        world.update_chunks(round(hero.tile_clmn), round(hero.tile_row), pool_animals)
         last_chunk_clmn = current_chunk_clmn
         last_chunk_row  = current_chunk_row
 
@@ -132,11 +136,14 @@ while run:
 
     # * Pre-render FPS text (blit happens later, only if show_data is True)
     fps_text = font.render(f"FPS: {int(clock.get_fps())}", True, white)
+    active_animals = sum(1 for a in pool_animals if a.visible)
+    animals_text = font.render(f"Animals: {active_animals}", True, white)
 
     # * Update the animals
     for entity in entities_list:
-        entity.update(cam_x, cam_y, hero.world_x, hero.world_y)
-        entity.barra_healt(wn, entity.world_x, entity.world_y)  # * Health bar drawn in world space above the entity
+        if entity.visible:
+            entity.update(cam_x, cam_y, hero.world_x, hero.world_y)
+            entity.barra_healt(wn, entity.world_x, entity.world_y)  # * Health bar drawn in world space above the entity
 
     hero.update(keys_pressed, pool_items, cam_x, cam_y, entities_list, world, Fire)
 
@@ -144,7 +151,6 @@ while run:
     sprites_list.sort(key=lambda x: x.depth)
     for entity in sprites_list:
         entity.draw(wn)
-
 
     for item in pool_items:
         item.update(cam_x, cam_y)  # * Recalculate screen position; draw() is handled via sprites_list
@@ -164,6 +170,7 @@ while run:
     if show_data:
         wn.blit(fps_text, fps_pos)
         wn.blit(sed_text, sed_pos)
+        wn.blit(animals_text, (fps_pos[0] - 50, fps_pos[1] + 30))
 
     pygame.display.flip()  # * Push the completed frame to the screen
     clock.tick(fps_cap)  # * Cap framerate and yield CPU time

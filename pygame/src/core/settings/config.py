@@ -8,13 +8,13 @@ pygame.init()
 height = 600
 width = 800
 MAX_ITEMS_IN_WINDOWS = 10
-MAX_ANIMALS_IN_WINDOWS = 5
+MAX_ANIMALS_IN_WINDOWS = 20
 TILE_W = 128
 TILE_H = 128
 ISO_W = 128
 ISO_H = 64
 CHUNK = 16
-CHUNK_DISTANCE = 3
+CHUNK_DISTANCE = 1
 last_chunk_clmn = -999
 last_chunk_row = -999
 minimum_sed = 111111111111111111111111
