@@ -95,10 +95,7 @@ class Animals(Entities):
         return math.sqrt(dx * dx + dy * dy)
 
     def _get_iso_direction(self, dx, dy):
-        iso_x = dx - dy
-        iso_y = (dx + dy) / 2
-
-        angle = math.degrees(math.atan2(iso_y, iso_x))
+        angle = math.degrees(math.atan2(dy, dx))
         if 0 <= angle < 90:
             return "SE"
         elif 90 <= angle < 180:

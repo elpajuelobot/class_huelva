@@ -148,7 +148,7 @@ class Player(Entities):
                     self.bubbles -= 1
                 elif self.bubbles <= 0:
                     self.oxigen = False
-                    self.health -= 1
+                    self.health -= 10
                 self.last_water_damage_time = current_time_water
         else:
             self.oxigen = True

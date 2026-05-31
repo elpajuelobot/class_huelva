@@ -33,6 +33,10 @@ black = (0, 0, 0)
 purple = (114, 0, 194)
 grey_red = (115, 101, 101)
 red_dark = (255, 0, 100)
+# * Inputs colors
+COLOR_INACTIVE = pygame.Color('lightskyblue3')
+COLOR_ACTIVE = pygame.Color('dodgerblue2')
+
 
 # ? FPS
 f_size = 30
@@ -102,3 +106,16 @@ height_health_invt = 5
 
 # ? SED position
 sed_pos = (10, player_health_y + height_health_player + player_bubble_h + 10)
+
+# ? ABC/NUMS
+abc = [
+    'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h',
+    'i', 'j', 'k', 'l', 'm', 'n', 'ñ', 'o',
+    'p', 'q', 'r', 's', 't', 'u', 'v', 'w',
+    'x', 'y', 'z'
+]
+
+nums = [
+    '1', '2', '3', '4', '5',
+    '6', '7', '8', '9', '0'
+]
