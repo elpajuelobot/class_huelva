@@ -1,0 +1,28 @@
+#####################################################
+FETCHONE/FETCHALL
+#####################################################
+
+# Usando fetchone
+cursor.execute("SELECT nombre FROM usuarios")
+fila1 = cursor.fetchone()  # Devuelve: ('Ana',)
+fila2 = cursor.fetchone()  # Devuelve: ('Carlos',)
+
+# Usando fetchall
+cursor.execute("SELECT nombre FROM usuarios")
+todas_las_filas = cursor.fetchall()  
+# Devuelve: [('Ana',), ('Carlos',), ('Elena',)]
+
+#####################################################
+EXECUTE/EXECUTEMANY
+#####################################################
+
+# Usando execute
+cursor.execute("INSERT INTO usuarios (nombre, edad) VALUES (?, ?)", ("Ana", 25))
+
+# Usando executemany
+datos_usuarios = [
+    ("Carlos", 30),
+    ("Elena", 22),
+    ("Fernando", 28)
+]
+cursor.executemany("INSERT INTO usuarios (nombre, edad) VALUES (?, ?)", datos_usuarios)

@@ -45,7 +45,7 @@ class Inventory:
 
     # * Try to add an item to the inventory; returns True on success, False if the inventory is full
     def put_images(self, item_name, item_durability, item_health):
-        with open("src\\data\\json\\items_not_duplicated.json", "r", encoding="utf-8") as data:
+        with open("src/data/json/items_not_duplicated.json", "r", encoding="utf-8") as data:
             not_duplicated = json.load(data)
 
         # * If the item already exists in a slot, stack it (unless it's in the non-stackable list)

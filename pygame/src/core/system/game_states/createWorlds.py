@@ -4,16 +4,18 @@ from src.core.system.game_states.fatherClass import GameState
 from src.core.system.inputs.inputs import InputBox
 from src.core.settings.config import white
 from src.core.system.game_states.game import GamingState
+from src.database.scripts.database import DataBase
 
 
 class CreateMenu(GameState):
     def __init__(self, motor, worlds_menu):
         super().__init__(motor)
         self.worlds_menu = worlds_menu
+        self.db = DataBase()
 
-        self.img_n = pygame.image.load("src\\data\\img\\background\\states\\initial\\play_void.png")
-        self.img_h = pygame.image.load("src\\data\\img\\background\\states\\initial\\play_hover_void.png")
-        self.img_p = pygame.image.load("src\\data\\img\\background\\states\\initial\\play_pressed_void.png")
+        self.img_n = pygame.image.load("src/data/img/background/states/initial/play_void.png")
+        self.img_h = pygame.image.load("src/data/img/background/states/initial/play_hover_void.png")
+        self.img_p = pygame.image.load("src/data/img/background/states/initial/play_pressed_void.png")
 
         self.CreateButton = RectButton(
             self.motor.width // 2 - 200,
@@ -60,23 +62,24 @@ class CreateMenu(GameState):
                 self.motor.change_state(self.worlds_menu)
 
             if self.CreateButton.click(event):
-                if not self.input_world_name.text and not self.input_world_sed.text:
-                    self.motor.change_state(GamingState(self.motor))
-                elif self.input_world_name.text and not self.input_world_sed.text:
-                    self.motor.change_state(GamingState(self.motor))
-                    print("New world has been created:")
-                    print(f"  1. New world name: {self.input_world_name.text}")
-                    print(f"  2. New world sed:  {self.input_world_sed.text}")
-                elif not self.input_world_name.text and self.input_world_sed.text:
-                    self.motor.change_state(GamingState(self.motor, sed=int(self.input_world_sed.text)))
-                    print("New world has been created:")
-                    print(f"  1. New world name: {self.input_world_name.text}")
-                    print(f"  2. New world sed:  {self.input_world_sed.text}")
+                world_name = self.input_world_name.text.strip()
+                if not world_name:
+                    world_name = "New World"
+
+                if self.input_world_sed.text.strip():
+                    world_sed = int(self.input_world_sed.text)
+                    self.motor.change_state(GamingState(self.motor, sed=world_sed))
                 else:
-                    self.motor.change_state(GamingState(self.motor, sed=int(self.input_world_sed.text)))
+                    self.motor.change_state(GamingState(self.motor))
+
                     print("New world has been created:")
                     print(f"  1. New world name: {self.input_world_name.text}")
                     print(f"  2. New world sed:  {self.input_world_sed.text}")
+
+                self.db.WriteDelete("""
+                        INSERT INTO worlds (name, seed)
+                        VALUES (?, ?)
+                """, (self.input_world_name.text, self.motor.world.sed))
 
             for input_box in self.inputs_boxes:
                 input_box.handle_event(event)

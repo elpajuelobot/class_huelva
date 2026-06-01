@@ -5,9 +5,9 @@ from src.core.settings.config import player_core_w, player_core_h
 
 # * Load and slice the player sprite sheet into directional move/idle animations
 def sprites_func_player(width_player, height_player):
-    imagen_completa = image.load("src\\data\\img\\player\\player_Completo.png").convert_alpha()
-    player_core   = image.load("src\\data\\img\\player\\health\\core.png").convert_alpha()
-    player_bubble = image.load("src\\data\\img\\player\\health\\bubble.png").convert_alpha()
+    imagen_completa = image.load("src/data/img/player/player_Completo.png").convert_alpha()
+    player_core   = image.load("src/data/img/player/health/core.png").convert_alpha()
+    player_bubble = image.load("src/data/img/player/health/bubble.png").convert_alpha()
     hoja_ancho, hoja_alto = imagen_completa.get_size()
 
     # * Each cell size in the original sheet (8 columns × 3 rows)
@@ -62,7 +62,7 @@ def sprites_func_shot(shot_witdh, shot_height):
     sprites = {
         "shot_sprite": {
             "shot": transform.scale(
-                image.load("src\\data\\img\\shot_player\\shot_image.png"),
+                image.load("src/data/img/shot_player/shot_image.png"),
                 (shot_witdh, shot_height)
             )
         }
@@ -87,27 +87,27 @@ def sprites_func_items(item_width, item_height):
     sprites = {
         "item_sprites": {
             "coin": transform.scale(
-                image.load("src\\data\\img\\objects\\coin.png"),
+                image.load("src/data/img/objects/coin.png"),
                 (item_width, item_height)
             ),
 
             "banana": transform.scale(
-                image.load("src\\data\\img\\objects\\banana.png"),
+                image.load("src/data/img/objects/banana.png"),
                 (item_width, item_height)
             ),
 
             "cookie": transform.scale(
-                image.load("src\\data\\img\\objects\\cookie.png"),
+                image.load("src/data/img/objects/cookie.png"),
                 (item_width, item_height)
             ),
 
             "crystal": transform.scale(
-                image.load("src\\data\\img\\objects\\crystal.png"),
+                image.load("src/data/img/objects/crystal.png"),
                 (item_width, item_height)
             ),
 
             "sword": transform.scale(
-                image.load("src\\data\\img\\objects\\sword.png"),
+                image.load("src/data/img/objects/sword.png"),
                 (item_width, item_height)
             )
         }

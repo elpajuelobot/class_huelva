@@ -19,7 +19,7 @@ class World_generator:
 
         # * Load a tile image by index, scale it to match the configured tile size
         def load_tile(index):
-            path = f"src\\data\\img\\background\\tiles\\separados\\tile_{index:03d}.png"
+            path = f"src/data/img/background/tiles/separados/tile_{index:03d}.png"
             img = pygame.image.load(path).convert_alpha()
             scale_factor = tile_w / 32  # * Source tiles are 32×32px
             new_w = int(32 * scale_factor)

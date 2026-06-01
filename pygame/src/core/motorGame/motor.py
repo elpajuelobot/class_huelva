@@ -47,7 +47,7 @@ class MotorGame:
     def background(self, sed):
         # * Background grid overlay — decorative tile grid scaled to fill the window
         self.gride = pygame.transform.scale(
-            pygame.image.load("src\\data\\img\\background\\gradillas\\gradilla.png"),
+            pygame.image.load("src/data/img/background/gradillas/gradilla.png"),
             (self.width, self.height)
         ).convert_alpha()
 

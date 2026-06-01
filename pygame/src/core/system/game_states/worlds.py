@@ -1,20 +1,22 @@
 import pygame
 from src.core.system.buttons.buttons import RectButton
 from src.core.system.game_states.fatherClass import GameState
+from src.database.scripts.database import DataBase
 
 
 class WorldsMenu(GameState):
     def __init__(self, motor, initial_menu):
         super().__init__(motor)
         self.initial_menu = initial_menu
+        self.db = DataBase()
         self.background = pygame.transform.scale(
-            pygame.image.load("src\\data\\img\\background\\states\\initial\\initial.webp"),
+            pygame.image.load("src/data/img/background/states/initial/initial.webp"),
             (self.motor.width, self.motor.height)
         ).convert_alpha()
 
-        self.img_n = pygame.image.load("src\\data\\img\\background\\states\\initial\\play_void.png")
-        self.img_h = pygame.image.load("src\\data\\img\\background\\states\\initial\\play_hover_void.png")
-        self.img_p = pygame.image.load("src\\data\\img\\background\\states\\initial\\play_pressed_void.png")
+        self.img_n = pygame.image.load("src/data/img/background/states/initial/play_void.png")
+        self.img_h = pygame.image.load("src/data/img/background/states/initial/play_hover_void.png")
+        self.img_p = pygame.image.load("src/data/img/background/states/initial/play_pressed_void.png")
 
         self.BackButton = RectButton(
             x_button=50,
@@ -35,7 +37,11 @@ class WorldsMenu(GameState):
             img_hover=self.img_h,
             img_pressed=self.img_p
         )
+        self.load_worlds()
 
+
+    def load_worlds(self):
+        self.worlds = self.db.Select("SELECT * FROM worlds ORDER BY last_played DESC")
 
     def events_(self, events):
         for event in events:

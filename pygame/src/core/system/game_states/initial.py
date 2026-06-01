@@ -9,17 +9,17 @@ class InitialMenu(GameState):
     def __init__(self, motor):
         super().__init__(motor)
         self.background = pygame.transform.scale(
-            pygame.image.load("src\\data\\img\\background\\states\\initial\\initial.webp"),
+            pygame.image.load("src/data/img/background/states/initial/initial.webp"),
             (self.motor.width, self.motor.height)
         ).convert_alpha()
         self.text_background = pygame.transform.scale(
-            pygame.image.load("src\\data\\img\\background\\states\\initial\\Maincraft.png"),
+            pygame.image.load("src/data/img/background/states/initial/Maincraft.png"),
             (self.motor.width, self.motor.height // 2)
         ).convert_alpha()
 
-        self.img_n = pygame.image.load("src\\data\\img\\background\\states\\initial\\play_void.png")
-        self.img_h = pygame.image.load("src\\data\\img\\background\\states\\initial\\play_hover_void.png")
-        self.img_p = pygame.image.load("src\\data\\img\\background\\states\\initial\\play_pressed_void.png")
+        self.img_n = pygame.image.load("src/data/img/background/states/initial/play_void.png")
+        self.img_h = pygame.image.load("src/data/img/background/states/initial/play_hover_void.png")
+        self.img_p = pygame.image.load("src/data/img/background/states/initial/play_pressed_void.png")
 
         self.playButton = RectButton(
             (self.motor.width // 2 - 100), self.motor.height // 2,

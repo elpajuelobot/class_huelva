@@ -94,7 +94,7 @@ stag_width = 85
 stag_height = 95
 
 # ? Sounds
-soundtrack_path = "src\data\music\Minecraft 2015 soundtrack.mp3"
+soundtrack_path = "src/data/music/Minecraft 2015 soundtrack.mp3"
 
 # ? Health
 # * Animals

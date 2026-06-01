@@ -8,11 +8,11 @@ class Defeat(GameState):
         super().__init__(motor)
         self.gaming_state = gaming_state
 
-        self.img_n = pygame.image.load("src\\data\\img\\background\\states\\initial\\play_void.png")
-        self.img_h = pygame.image.load("src\\data\\img\\background\\states\\initial\\play_hover_void.png")
-        self.img_p = pygame.image.load("src\\data\\img\\background\\states\\initial\\play_pressed_void.png")
+        self.img_n = pygame.image.load("src/data/img/background/states/initial/play_void.png")
+        self.img_h = pygame.image.load("src/data/img/background/states/initial/play_hover_void.png")
+        self.img_p = pygame.image.load("src/data/img/background/states/initial/play_pressed_void.png")
         self.background = pygame.transform.scale(
-            pygame.image.load("src\\data\\img\\background\\states\\initial\\defeat.png"),
+            pygame.image.load("src/data/img/background/states/initial/defeat.png"),
             (self.motor.width, self.motor.height)
         ).convert_alpha()
 

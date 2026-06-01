@@ -197,7 +197,7 @@ class Animals(Entities):
 
     # * Load the animal's sprite sheet from the JSON path registry
     def load_sprites(self):
-        with open("src\\data\\json\\animals_path.json", "r", encoding="utf-8") as data:
+        with open("src/data/json/animals_path.json", "r", encoding="utf-8") as data:
             animals_paths = json.load(data)
 
         for state in animals_paths[self.animal]:
